@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
-    <height>300</height>
+    <width>481</width>
+    <height>309</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,13 +43,13 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
         </property>
@@ -132,13 +132,13 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
         </property>
@@ -213,9 +213,15 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
         </property>
@@ -286,8 +292,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="text">
@@ -314,8 +326,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>403</width>
-     <height>24</height>
+     <width>481</width>
+     <height>33</height>
     </rect>
    </property>
   </widget>

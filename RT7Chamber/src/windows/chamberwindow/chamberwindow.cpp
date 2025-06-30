@@ -6,6 +6,7 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui(new Ui::ChamberWindow)
 {
     ui->setupUi(this);
+    setWindowTitle("RT7 Chamber");
 }
 
 ChamberWindow::~ChamberWindow()
