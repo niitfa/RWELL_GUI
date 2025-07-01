@@ -38,8 +38,8 @@ private:
     Ui::MainWindow *ui;
     ChamberWindow* chamber_ui = new ChamberWindow(this);
     QVector<uint8_t> defaultIP = {169, 254, 206, 12};
-    uint16_t defaultInputPort = 22251;
-    uint16_t defaultOutputPort = 22252;
+    uint16_t defaultInputPort = 22252;
+    uint16_t defaultOutputPort = 22251;
     int connCntMax = 100;
 
 private:

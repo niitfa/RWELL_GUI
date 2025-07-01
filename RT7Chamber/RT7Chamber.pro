@@ -32,7 +32,8 @@ INCLUDEPATH += \
         src/util \
         src/windows \
         src/windows/mainwindow \
-        src/windows/chamberwindow
+        src/windows/chamberwindow \
+        src/client
 
 
 # Default rules for deployment.

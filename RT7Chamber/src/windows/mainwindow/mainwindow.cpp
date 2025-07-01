@@ -11,12 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //setSize(350, 250);
-    setGeometry(100, 100 , 400, 250);
-
     setWindowTitle("RT7 Chamber");
-    // hide diargam
-    //diagram->hide();
 
     // fill combo box
     ui->comboBox_TypeSelect->addItem("Колодезная камера");
@@ -115,7 +110,7 @@ void MainWindow::on_pushButton_Connect_clicked()
 
     QString type = ui->comboBox_TypeSelect->currentText();
     // pass obj to new window
-    /*if(type == "4x4")
+    /*if(1)
     {
 
         // connect attempt and connection check
@@ -148,7 +143,24 @@ void MainWindow::on_pushButton_Connect_clicked()
 
     if(type == "Колодезная камера")
     {
-        chamber_ui->show();
+         chamber_ui->connect(ip, outputPort, inputPort);
+         for (int i = 0; i < this->connCntMax; ++i)
+         {
+             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+             if(chamber_ui->isConnected())
+             {
+                 chamber_ui->show();
+                 break;
+             }
+
+             // last iteration
+             if(i == this->connCntMax - 1)
+             {
+                 chamber_ui->disconnect();
+                 QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
+
+             }
+         }
     }
 }
 
