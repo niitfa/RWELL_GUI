@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1710</width>
-    <height>1199</height>
+    <width>1352</width>
+    <height>864</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -352,13 +352,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>180</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>190</width>
+             <width>180</width>
              <height>30</height>
             </size>
            </property>
@@ -387,7 +387,7 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QPushButton" name="pushButton_stopMeasure">
+          <widget class="QPushButton" name="pushButton_resetMeasure">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -396,18 +396,18 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>250</width>
+             <width>180</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>190</width>
+             <width>180</width>
              <height>30</height>
             </size>
            </property>
            <property name="text">
-            <string>Остановить измерение</string>
+            <string> Сбросить измерение</string>
            </property>
           </widget>
          </item>

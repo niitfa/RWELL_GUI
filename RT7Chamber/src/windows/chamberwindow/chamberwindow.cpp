@@ -1,6 +1,7 @@
 #include "chamberwindow.h"
 #include "ui_chamberwindow.h"
 #include <QPalette>
+#include <iostream>
 
 ChamberWindow::ChamberWindow(QWidget *parent) :
     QDialog(parent),
@@ -34,12 +35,14 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     }
 
     this->receiver = new MessageReceiver();
+    this->transmitter = new MessageTransmitter();
 }
 
 ChamberWindow::~ChamberWindow()
 {
     delete ui;
     delete receiver;
+    delete transmitter;
 }
 
 void ChamberWindow::connect(std::string ip, uint16_t outputPort, uint16_t inputPort)
@@ -48,7 +51,10 @@ void ChamberWindow::connect(std::string ip, uint16_t outputPort, uint16_t inputP
     {
         receiver->Connect(ip, outputPort);
     }
-    // tramsmitter->connect();
+    if(this->transmitter)
+    {
+        transmitter->Connect(ip, inputPort);
+    }
 }
 
 void ChamberWindow::disconnect()
@@ -57,16 +63,26 @@ void ChamberWindow::disconnect()
     {
         receiver->Disconnect();
     }
-
+    if(this->transmitter)
+    {
+        transmitter->Disconnect();
+    }
 }
 
 bool ChamberWindow::isConnected()
 {
+    bool receverConnected = true;
+    bool transmitterConnected = true;
     if(this->receiver)
     {
-        return receiver->IsConnected();
+        receverConnected = receiver->IsConnected();
     }
-    return false;
+    if(this->transmitter)
+    {
+        transmitterConnected = transmitter->ping();
+    }
+
+    return (receverConnected && transmitterConnected);
 }
 
 void ChamberWindow::show()

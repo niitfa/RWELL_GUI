@@ -6,6 +6,7 @@
 #include <QtMath>
 #include <QString>
 #include "MessageReceiver.h"
+#include "MessageTransmitter.h"
 
 namespace Ui {
 class ChamberWindow;
@@ -30,6 +31,7 @@ private slots:
 
 private:
     MessageReceiver* receiver = nullptr;
+    MessageTransmitter* transmitter = nullptr;
     Ui::ChamberWindow *ui;
     QTimer* timer = nullptr;
 
