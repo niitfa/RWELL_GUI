@@ -109,35 +109,6 @@ void MainWindow::on_pushButton_Connect_clicked()
 
 
     QString type = ui->comboBox_TypeSelect->currentText();
-    // pass obj to new window
-    /*if(1)
-    {
-
-        // connect attempt and connection check
-        diagram->connect(ip, port,
-                        {0, 1, 2, 3},
-                        {0, 1, 4, 5}
-                         );
-        for (int i = 0; i < this->connCntMax; ++i)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            if(diagram->isConnected())
-            {
-                diagram->show();
-                break;
-            }
-
-            // last iteration
-            if(i == this->connCntMax - 1)
-            {
-                diagram->disconnect();
-                QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
-
-            }
-        }
-        // connect attempt ends
-        *
-    } */
 
     // FOR CHAMBER
 
@@ -156,7 +127,7 @@ void MainWindow::on_pushButton_Connect_clicked()
              // last iteration
              if(i == this->connCntMax - 1)
              {
-                 chamber_ui->disconnect();
+                 //chamber_ui->disconnect();
                  QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
 
              }
@@ -167,5 +138,4 @@ void MainWindow::on_pushButton_Connect_clicked()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     this->QMainWindow::closeEvent(event);
-    //diagram->disconnect();
 }

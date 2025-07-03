@@ -34,6 +34,10 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
         line->setPalette(greyPalette);
     }
 
+    // set initial values
+    ui->lineEdit_targetVolt->setText("0");
+    ui->lineEdit_targetMeasNum->setText("100");
+
     this->receiver = new MessageReceiver();
     this->transmitter = new MessageTransmitter();
 }
@@ -79,7 +83,7 @@ bool ChamberWindow::isConnected()
     }
     if(this->transmitter)
     {
-        transmitterConnected = transmitter->ping();
+        transmitterConnected = transmitter->IsConnected();
     }
 
     return (receverConnected && transmitterConnected);
@@ -115,19 +119,95 @@ void ChamberWindow::update()
     {
         id = receiver->GetMessageID();
 
+        int cyclesRemained = receiver->GetMeasurementTime();
         int currDoseRate = receiver->GetADCValue();
         int averDoseRate = receiver->GetADCAverageValue();
         int currVoltage = receiver->GetHVOut();
         int currPressure = receiver->GetPressurePa();
+        int8_t hvPolarity = receiver->GetHVPolarity();
+        int8_t range = receiver->GetRange();
 
+        ui->lineEdit_remainedMeasNum->setText(QString::fromStdString(std::to_string(cyclesRemained)));
         ui->lineEdit_currDR->setText(QString::fromStdString(std::to_string(currDoseRate)));
         ui->lineEdit_averDR->setText(QString::fromStdString(std::to_string(averDoseRate)));
         ui->lineEdit_currVolt->setText(QString::fromStdString(std::to_string(currVoltage)));
         ui->lineEdit_currPressure->setText(QString::fromStdString(std::to_string(currPressure)));
+
+        if(!hvPolarity)  { ui->label_voltPolarity->setText(this->qStrPositivePolarity); }
+        if(hvPolarity) { ui->label_voltPolarity->setText(this->qStrNegativePolarity); }
+
+        if(!range) { ui->label_range->setText(this->qStrBroadRange); }
+        if(range) { ui->label_range->setText(this->qStrNarrowRange); }
     }
 }
 
 void ChamberWindow::on_lineEdit_targetMeasNum_editingFinished()
 {
 
+}
+
+void ChamberWindow::on_pushButton_startMeasure_clicked()
+{
+    this->ChamberWindow::on_pushButton_resetMeasure_clicked();
+    if(this->transmitter)
+    {
+        int cycles = ui->lineEdit_targetMeasNum->text().toInt();
+        transmitter->startMeasurement(cycles);
+    }
+}
+
+void ChamberWindow::on_pushButton_resetMeasure_clicked()
+{
+    if(this->transmitter)
+    {
+        transmitter->resetMeasurement();
+    }
+}
+
+void ChamberWindow::on_pushButton_switchVoltPolarity_clicked()
+{
+    if(this->transmitter && this->receiver)
+    {
+         if(receiver->GetHVPolarity())
+         {
+             this->transmitter->setPositiveVoltage();
+         }
+         else
+         {
+             this->transmitter->setNegativeVoltage();
+         }
+    }
+}
+
+void ChamberWindow::on_pushButton_switchRange_clicked()
+{
+    if(this->transmitter && this->receiver)
+    {
+         if(receiver->GetRange())
+         {
+             this->transmitter->setBroadRange();
+         }
+         else
+         {
+             this->transmitter->setNarrowRange();
+         }
+    }
+}
+
+void ChamberWindow::on_lineEdit_targetVolt_editingFinished()
+{
+    int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
+    if(targetVoltage < 0 || targetVoltage > 500)
+    {
+        ui->lineEdit_targetVolt->setText("0");
+    }
+}
+
+void ChamberWindow::on_pushButton_changeVoltage_clicked()
+{
+    int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
+    if(this->transmitter)
+    {
+        this->transmitter->setVoltageValue(static_cast<uint16_t>(targetVoltage));
+    }
 }

@@ -49,13 +49,14 @@ bool MessageTransmitter::Connect(std::string ip, uint16_t port)
     QHostAddress addr( QString::fromStdString(this->ip) );
     addr.toIPv4Address();
 
+    /* QTcpSocket */
     bool opened = this->qSocket->open(QIODevice::ReadWrite);
-    //std::cout << "MessageTransmitter::opened = " << opened << std::endl;
+    std::cout << "MessageTransmitter::opened = " << opened << std::endl;
     this->qSocket->connectToHost(addr, this->port, QIODevice::ReadWrite);
-    bool connected = this->qSocket->waitForConnected(1000);
-    //std::cout << "MessageTransmitter::connected = " << connected << std::endl;
-    //std::string err =( this->qSocket->errorString() ).toStdString();
-    //std::cout << "MessageTransmitter::error = " << err << std::endl;
+    this->connected = this->qSocket->waitForConnected(1000);
+    std::cout << "MessageTransmitter::connected = " << connected << std::endl;
+    std::string err =( this->qSocket->errorString() ).toStdString();
+    std::cout << "MessageTransmitter::error = " << err << std::endl;
     return connected;
 }
 
@@ -63,11 +64,18 @@ void MessageTransmitter::Disconnect()
 {
     if(this->qSocket)
     {
+        /* QTcpSocket */
+        this->qSocket->disconnectFromHost();
         this->qSocket->close();
     }
 }
 
-int64_t MessageTransmitter::startMeasurement(uint32_t cycles)
+bool MessageTransmitter::IsConnected()
+{
+    return this->connected;
+}
+
+int64_t MessageTransmitter::startMeasurement(int32_t cycles)
 {
     return this->Send(COMM_START_MEAS, cycles);
 }
@@ -89,7 +97,7 @@ int64_t MessageTransmitter::setPositiveVoltage()
 
 int64_t MessageTransmitter::setVoltageValue(uint16_t volt)
 {
-    return  this->Send(COMM_SET_HV, volt);
+    return this->Send(COMM_SET_HV, volt);
 }
 
 int64_t MessageTransmitter::setNarrowRange()
@@ -117,7 +125,10 @@ int64_t MessageTransmitter::Send(int val_1, int val_2)
         memset(this->message, 0, this->kMessageSize);
         memcpy(this->message + this->kBytePositionValue1, &val_1, sizeof(val_1));
         memcpy(this->message + this->kBytePositionValue2, &val_2, sizeof(val_2));
+
+        /* QTcpSocket*/
         send_size = this->qSocket->write(this->message, this->kMessageSize);
+
         this->mtx.unlock();
     }
 	return send_size;

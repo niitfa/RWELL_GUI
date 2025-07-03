@@ -69,12 +69,28 @@ int MessageReceiver::GetADCAverageValue()
 	this->mtx.unlock();
 	return val;
 }
-int MessageReceiver::GetHVOut()
+int16_t MessageReceiver::GetHVOut()
 {
 	this->mtx.lock();
-	int32_t val = *reinterpret_cast<int32_t*>(this->message + this->kBytePos_HVOut);
+    int16_t val = *reinterpret_cast<int16_t*>(this->message + this->kBytePos_HVOut);
 	this->mtx.unlock();
 	return val;
+}
+
+int8_t MessageReceiver::GetHVPolarity()
+{
+    this->mtx.lock();
+    int8_t val = *reinterpret_cast<int8_t*>(this->message + this->kBytePos_HVPol);
+    this->mtx.unlock();
+    return val;
+}
+
+int8_t MessageReceiver::GetRange()
+{
+    this->mtx.lock();
+    int8_t val = *reinterpret_cast<int8_t*>(this->message + this->kBytePos_Range);
+    this->mtx.unlock();
+    return val;
 }
 
 int MessageReceiver::GetPressurePa()

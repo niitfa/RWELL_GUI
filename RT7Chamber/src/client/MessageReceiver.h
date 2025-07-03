@@ -17,6 +17,8 @@ class MessageReceiver
 	static const int kBytePos_DoseADC = 4;
 	static const int kBytePos_DoseADCAverage = 8;
 	static const int kBytePos_HVOut = 12;
+    static const int kBytePos_HVPol = 14;
+    static const int kBytePos_Range = 15;
 	static const int kBytePos_Pressure = 16;
 	static const int kBytePos_MeasurementState = 20;
 	static const int kBytePos_MeasurementTime = 21;
@@ -26,7 +28,7 @@ class MessageReceiver
     std::string ip;
     uint16_t port;
     struct timeval timeout;
-    bool connected = 0;
+    bool connected = false;
 
     /* Thread var */
     std::mutex mtx;
@@ -44,7 +46,9 @@ public:
 	int GetMessageID();
 	int GetADCValue();
 	int GetADCAverageValue();
-	int GetHVOut();
+    int16_t GetHVOut();
+    int8_t GetHVPolarity();
+    int8_t GetRange();
 	int GetPressurePa();
 	int GetMeasurementState();
 	int GetMeasurementTime();

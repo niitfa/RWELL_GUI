@@ -27,7 +27,20 @@ public:
 
 private slots:
     void update();
+
     void on_lineEdit_targetMeasNum_editingFinished();
+
+    void on_pushButton_startMeasure_clicked();
+
+    void on_pushButton_resetMeasure_clicked();
+
+    void on_pushButton_switchVoltPolarity_clicked();
+
+    void on_pushButton_switchRange_clicked();
+
+    void on_lineEdit_targetVolt_editingFinished();
+
+    void on_pushButton_changeVoltage_clicked();
 
 private:
     MessageReceiver* receiver = nullptr;

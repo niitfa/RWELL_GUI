@@ -26,6 +26,7 @@ class MessageTransmitter
     //int sock;
     QTcpSocket* qSocket = new QTcpSocket();
 	char message[kMessageSize];
+    bool connected = false;
 
 	std::mutex mtx;
 public:
@@ -34,8 +35,9 @@ public:
 
     bool Connect(std::string ip, uint16_t port);
     void Disconnect();
+    bool IsConnected();
 
-    int64_t startMeasurement(uint32_t cycles);
+    int64_t startMeasurement(int32_t cycles);
     int64_t resetMeasurement();
     int64_t setNegativeVoltage();
     int64_t setPositiveVoltage();
