@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += network
+QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -34,6 +35,7 @@ INCLUDEPATH += \
         src/windows \
         src/windows/mainwindow \
         src/windows/chamberwindow \
+        src/graph \
         src/client
 
 

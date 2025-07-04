@@ -38,6 +38,15 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_targetVolt->setText("0");
     ui->lineEdit_targetMeasNum->setText("100");
 
+    // Graph
+    this->graph = new QGraph(ui->widget_graph);
+    this->graph->setTAxisRange(0, static_cast<double>(this->tGraphRange));
+    this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
+
+    ui->lineEdit_graphVerticalMax->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMaxRange))));
+    ui->lineEdit_graphVerticalMin->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMinRange))));
+    ui->lineEdit_graphHorizontalRange->setText(QString::fromStdString(std::to_string(static_cast<int>(this->tGraphRange))));
+
     this->receiver = new MessageReceiver();
     this->transmitter = new MessageTransmitter();
 }
@@ -47,6 +56,7 @@ ChamberWindow::~ChamberWindow()
     delete ui;
     delete receiver;
     delete transmitter;
+    delete graph;
 }
 
 void ChamberWindow::connect(std::string ip, uint16_t outputPort, uint16_t inputPort)
@@ -92,6 +102,7 @@ bool ChamberWindow::isConnected()
 void ChamberWindow::show()
 {
     this->QDialog::show();
+    this->graph->show();
     if(!timer->isActive())
     {
         timer->start();
@@ -110,6 +121,7 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
 {
     QDialog::resizeEvent(event);
     // my code
+    show();
 
 }
 
@@ -138,6 +150,12 @@ void ChamberWindow::update()
 
         if(!range) { ui->label_range->setText(this->qStrBroadRange); }
         if(range) { ui->label_range->setText(this->qStrNarrowRange); }
+
+        // graph update
+        if(this->graph)
+        {
+            this->graph->QGraph::update(currDoseRate);
+        }
     }
 }
 
@@ -210,4 +228,75 @@ void ChamberWindow::on_pushButton_changeVoltage_clicked()
     {
         this->transmitter->setVoltageValue(static_cast<uint16_t>(targetVoltage));
     }
+}
+
+void ChamberWindow::on_pushButton_startGraph_clicked()
+{
+    if(this->graph) { this->graph->setEnabled(true); }
+}
+
+void ChamberWindow::on_pushButton_stopGraph_clicked()
+{
+    if(this->graph) { this->graph->setEnabled(false); }
+}
+
+void ChamberWindow::on_lineEdit_graphHorizontalRange_editingFinished()
+{
+    double tRange = ui->lineEdit_graphHorizontalRange->text().toDouble();
+    if(tRange > 0)
+    {
+        this->graph->setEnabled(false);
+        this->graph->setTAxisRange(0, tRange);
+    }
+    else
+    {
+         ui->lineEdit_graphHorizontalRange->setText(
+                     QString::fromStdString(std::to_string(this->graph->getTimeRange()))
+                     );
+    }
+
+
+}
+
+void ChamberWindow::on_lineEdit_graphVerticalMin_editingFinished()
+{
+    double min = ui->lineEdit_graphVerticalMin->text().toDouble();
+    double currMax = this->graph->getYMax();
+    if(min < currMax)
+    {
+        this->graph->setYAxisRange(min, currMax);
+    }
+    else
+    {
+        int currMinInt = static_cast<int>(this->graph->getYMin());
+        ui->lineEdit_graphVerticalMin->setText(
+                    QString::fromStdString(std::to_string(currMinInt))
+                    );
+    }
+}
+
+void ChamberWindow::on_lineEdit_graphVerticalMax_editingFinished()
+{
+    double max = ui->lineEdit_graphVerticalMax->text().toDouble();
+    double currMin = this->graph->getYMin();
+    if(max > currMin)
+    {
+        this->graph->setYAxisRange(currMin, max);
+    }
+    else
+    {
+        int currMaxInt = static_cast<int>(this->graph->getYMax());
+        ui->lineEdit_graphVerticalMax->setText(
+                    QString::fromStdString(std::to_string(currMaxInt))
+                    );
+    }
+}
+
+void ChamberWindow::on_pushButton_resetScales_clicked()
+{
+    this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
+    this->graph->setTAxisRange(0, this->tGraphRange);
+    ui->lineEdit_graphVerticalMax->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMaxRange))));
+    ui->lineEdit_graphVerticalMin->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMinRange))));
+    ui->lineEdit_graphHorizontalRange->setText(QString::fromStdString(std::to_string(static_cast<int>(this->tGraphRange))));
 }

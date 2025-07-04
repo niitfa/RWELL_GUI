@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QtMath>
 #include <QString>
+#include "qgraph.h"
 #include "MessageReceiver.h"
 #include "MessageTransmitter.h"
 
@@ -42,6 +43,18 @@ private slots:
 
     void on_pushButton_changeVoltage_clicked();
 
+    void on_pushButton_startGraph_clicked();
+
+    void on_pushButton_stopGraph_clicked();
+
+    void on_lineEdit_graphHorizontalRange_editingFinished();
+
+    void on_lineEdit_graphVerticalMin_editingFinished();
+
+    void on_lineEdit_graphVerticalMax_editingFinished();
+
+    void on_pushButton_resetScales_clicked();
+
 private:
     MessageReceiver* receiver = nullptr;
     MessageTransmitter* transmitter = nullptr;
@@ -57,6 +70,12 @@ private:
     QString qStrNegativePolarity = "отрицат. (-)";
 
     int id = 0;
+
+    // Graph
+    QGraph* graph = nullptr;
+    double yGraphMaxRange = 9000000;
+    double yGraphMinRange = -9000000;
+    double tGraphRange = 20;
 
 private:
     void closeEvent(QCloseEvent *event) override;
