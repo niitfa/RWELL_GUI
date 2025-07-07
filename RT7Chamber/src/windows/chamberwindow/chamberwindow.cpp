@@ -295,8 +295,6 @@ void ChamberWindow::on_lineEdit_graphVerticalMax_editingFinished()
 void ChamberWindow::on_pushButton_resetScales_clicked()
 {
     this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
-    this->graph->setTAxisRange(0, this->tGraphRange);
     ui->lineEdit_graphVerticalMax->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMaxRange))));
     ui->lineEdit_graphVerticalMin->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMinRange))));
-    ui->lineEdit_graphHorizontalRange->setText(QString::fromStdString(std::to_string(static_cast<int>(this->tGraphRange))));
 }
