@@ -19,11 +19,16 @@ public:
     explicit QGraph(QWidget *parent = nullptr);
     ~QGraph();
 
+    void setNanoamperPerCount(double);
+    double getNanoamperPerCount();
+    void setNoise(int);
+    int getNoise();
+
     void setYAxisRange(double yMix, double yMax);
     void setTAxisRange(double tMin, double tMax);
 
     void show();
-    void update(int val);
+    void updateCount(int val);
     void resizeYAxis();
     void setEnabled(bool);
     double getTimeRange();
@@ -33,6 +38,8 @@ private:
     Ui::QGraph *ui;
     QTime timer;
     bool enabled = true;
+    double kNanoamperPerCount = 4e-8;
+    int noiseCount = 0;
 
 
     QVector<double> yVec;

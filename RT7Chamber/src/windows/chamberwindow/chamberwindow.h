@@ -8,6 +8,7 @@
 #include "qgraph.h"
 #include "MessageReceiver.h"
 #include "MessageTransmitter.h"
+#include "windows/noisemeasurementwindow/noisemeasurementwindow.h"
 
 namespace Ui {
 class ChamberWindow;
@@ -55,6 +56,10 @@ private slots:
 
     void on_pushButton_resetScales_clicked();
 
+    void on_pushButton_compensationBG_clicked();
+
+    void on_lineEdit_nAPerCount_editingFinished();
+
 private:
     MessageReceiver* receiver = nullptr;
     MessageTransmitter* transmitter = nullptr;
@@ -76,6 +81,10 @@ private:
     double yGraphMaxRange = 9000000;
     double yGraphMinRange = -9000000;
     double tGraphRange = 20;
+    const int maxVoltage = 500;
+
+    // noise window
+    //NoiseMeasurementWindow* o;
 
 private:
     void closeEvent(QCloseEvent *event) override;

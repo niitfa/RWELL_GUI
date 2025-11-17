@@ -2,19 +2,20 @@
 #include "ui_chamberwindow.h"
 #include <QPalette>
 #include <iostream>
+#include <QtMath>
 
 ChamberWindow::ChamberWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ChamberWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("RT7 Chamber");
+    setWindowTitle("RWELL");
 
     //init timer
     timer = new QTimer( this );
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->setSingleShot(false);
-    timer->setInterval(5);
+    timer->setInterval(20);
 
     //set readonly
     QPalette greyPalette;
@@ -26,7 +27,8 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
         ui->lineEdit_currDR,
         ui->lineEdit_currVolt,
         ui->lineEdit_currPressure,
-        ui->lineEdit_remainedMeasNum
+        ui->lineEdit_remainedMeasNum,
+        ui->lineEdit_signalCurrent
     };
     for(auto line : lineEditsRO)
     {
@@ -38,15 +40,30 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_targetVolt->setText("0");
     ui->lineEdit_targetMeasNum->setText("100");
 
-    // Graph
+    // Init graph
     this->graph = new QGraph(ui->widget_graph);
+    this->graph->setNanoamperPerCount(4e-8);
+    this->graph->setNoise(0);
     this->graph->setTAxisRange(0, static_cast<double>(this->tGraphRange));
     this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
 
-    ui->lineEdit_graphVerticalMax->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMaxRange))));
-    ui->lineEdit_graphVerticalMin->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMinRange))));
-    ui->lineEdit_graphHorizontalRange->setText(QString::fromStdString(std::to_string(static_cast<int>(this->tGraphRange))));
+    ui->lineEdit_graphVerticalMax->setText(QString::number(this->yGraphMaxRange));
+    ui->lineEdit_graphVerticalMin->setText(QString::number(this->yGraphMinRange));
+    ui->lineEdit_graphHorizontalRange->setText(QString::number(this->tGraphRange));
+    ui->lineEdit_nAPerCount->setText(QString::number(this->graph->getNanoamperPerCount()));
 
+    // remove buttons` focus
+    ui->pushButton_resetScales->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_startGraph->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_stopGraph->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_switchRange->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_resetMeasure->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_startMeasure->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_changeVoltage->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_switchVoltPolarity->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_compensationBG->setFocusPolicy(Qt::NoFocus);
+
+    // MCU connection
     this->receiver = new MessageReceiver();
     this->transmitter = new MessageTransmitter();
 }
@@ -122,11 +139,11 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
     QDialog::resizeEvent(event);
     // my code
     show();
-
 }
 
 void ChamberWindow::update()
 {
+    // update message from MCU
     if(this->id < receiver->GetMessageID())
     {
         id = receiver->GetMessageID();
@@ -139,11 +156,12 @@ void ChamberWindow::update()
         int8_t hvPolarity = receiver->GetHVPolarity();
         int8_t range = receiver->GetRange();
 
-        ui->lineEdit_remainedMeasNum->setText(QString::fromStdString(std::to_string(cyclesRemained)));
-        ui->lineEdit_currDR->setText(QString::fromStdString(std::to_string(currDoseRate)));
-        ui->lineEdit_averDR->setText(QString::fromStdString(std::to_string(averDoseRate)));
-        ui->lineEdit_currVolt->setText(QString::fromStdString(std::to_string(currVoltage)));
-        ui->lineEdit_currPressure->setText(QString::fromStdString(std::to_string(currPressure)));
+        ui->lineEdit_remainedMeasNum->setText(QString::number(cyclesRemained));
+        ui->lineEdit_currDR->setText(QString::number(currDoseRate));
+        ui->lineEdit_averDR->setText(QString::number(averDoseRate));
+        ui->lineEdit_currVolt->setText(QString::number(currVoltage));
+        ui->lineEdit_currPressure->setText(QString::number(currPressure));
+        ui->lineEdit_signalCurrent->setText(QString::number(this->receiver->GetADCValue() * this->graph->getNanoamperPerCount()));
 
         if(!hvPolarity)  { ui->label_voltPolarity->setText(this->qStrPositivePolarity); }
         if(hvPolarity) { ui->label_voltPolarity->setText(this->qStrNegativePolarity); }
@@ -154,9 +172,13 @@ void ChamberWindow::update()
         // graph update
         if(this->graph)
         {
-            this->graph->QGraph::update(currDoseRate);
+            this->graph->QGraph::updateCount(currDoseRate);
         }
     }
+
+    // update switch voltage button state
+    const int switchVoltageLimit = static_cast<int>(this->maxVoltage * 0.05);
+    ui->pushButton_switchVoltPolarity->setEnabled( qAbs(receiver->GetHVOut()) <  (switchVoltageLimit) );
 }
 
 void ChamberWindow::on_lineEdit_targetMeasNum_editingFinished()
@@ -214,11 +236,11 @@ void ChamberWindow::on_pushButton_switchRange_clicked()
 
 void ChamberWindow::on_lineEdit_targetVolt_editingFinished()
 {
-    int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
-    if(targetVoltage < 0 || targetVoltage > 500)
+    /*int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
+    if(targetVoltage < 0 || targetVoltage > this->maxVoltage)
     {
-        ui->lineEdit_targetVolt->setText("0");
-    }
+       // ui->lineEdit_targetVolt->setText("0");
+    } */
 }
 
 void ChamberWindow::on_pushButton_changeVoltage_clicked()
@@ -226,7 +248,19 @@ void ChamberWindow::on_pushButton_changeVoltage_clicked()
     int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
     if(this->transmitter)
     {
-        this->transmitter->setVoltageValue(static_cast<uint16_t>(targetVoltage));
+        if(targetVoltage < 0 || targetVoltage > this->maxVoltage) // check range
+        {
+            // bad value
+            QMessageBox::critical(this,
+                                  "Ошибка!",
+                                  "Допустимый диапазон:\nV мин. = 0 В\nV макс. = " + QString::number(this->maxVoltage) + " B"
+                                  );
+        }
+        else
+        {
+            // good value
+            this->transmitter->setVoltageValue(static_cast<uint16_t>(targetVoltage));
+        }
     }
 }
 
@@ -297,4 +331,18 @@ void ChamberWindow::on_pushButton_resetScales_clicked()
     this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
     ui->lineEdit_graphVerticalMax->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMaxRange))));
     ui->lineEdit_graphVerticalMin->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMinRange))));
+}
+
+void ChamberWindow::on_pushButton_compensationBG_clicked()
+{
+
+}
+
+void ChamberWindow::on_lineEdit_nAPerCount_editingFinished()
+{
+    double val = ui->lineEdit_nAPerCount->text().toDouble();
+    if(val != 0.)
+    {
+        this->graph->setNanoamperPerCount(val);
+    }
 }

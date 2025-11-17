@@ -8,15 +8,41 @@ QGraph::QGraph(QWidget *parent) :
 {
     ui->setupUi(this);
     this->QCustomPlot::xAxis->setLabel("t, s");
-    this->QCustomPlot::yAxis->setLabel("ADC output, cnt");
-    this->setupGraph();
+    //this->QCustomPlot::yAxis->setLabel("ADC output, cnt");
+    //this->QCustomPlot::yAxis2->setVisible(true);
+    //this->QCustomPlot::yAxis2->setLabel("Current, nA");
 
-    //timer.start();
+    this->QCustomPlot::yAxis->setLabel("Current, nA");
+    this->QCustomPlot::yAxis2->setVisible(true);
+    this->QCustomPlot::yAxis2->setLabel("ADC output, cnt");
+    this->setupGraph();
 }
 
 QGraph::~QGraph()
 {
     delete ui;
+}
+
+void QGraph::setNanoamperPerCount(double k)
+{
+    this->kNanoamperPerCount = k;
+    this->setYAxisRange(getYMin(), getYMax()); // rescale y axis
+}
+
+double QGraph::getNanoamperPerCount()
+{
+    return this->kNanoamperPerCount;
+}
+
+
+void QGraph::setNoise(int noise)
+{
+    this->noiseCount = noise;
+}
+
+int QGraph::getNoise()
+{
+    return this->noiseCount;
 }
 
 void QGraph::show()
@@ -27,7 +53,7 @@ void QGraph::show()
     this->QCustomPlot::show();
 }
 
-void QGraph::update(int val)
+void QGraph::updateCount(int val)
 {
     if(this->enabled)
     {
@@ -36,7 +62,7 @@ void QGraph::update(int val)
         double secs_elapsed = static_cast<double>(msecs_elapsed) / 1000;
 
         this->updateTimeVector(secs_elapsed);
-        this->yVec.push_back(val);
+        this->yVec.push_back((val - this->noiseCount)* this->kNanoamperPerCount);
 
 
         while(this->isLimitTimeExceeded())
@@ -55,14 +81,14 @@ void QGraph::update(int val)
 void QGraph::resizeYAxis()
 {
     // max yVec, min yVec
-
 }
 
 void QGraph::setYAxisRange(double yMin, double yMax)
 {
     this->yMin = yMin;
     this->yMax = yMax;
-    this->QCustomPlot::yAxis->setRange(this->yMin, this->yMax);
+    this->QCustomPlot::yAxis->setRange(this->yMin * this->kNanoamperPerCount, this->yMax * this->kNanoamperPerCount);
+    this->QCustomPlot::yAxis2->setRange(this->yMin, this->yMax);
     this->QGraph::replot();
 }
 
