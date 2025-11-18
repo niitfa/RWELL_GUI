@@ -8,10 +8,6 @@ QGraph::QGraph(QWidget *parent) :
 {
     ui->setupUi(this);
     this->QCustomPlot::xAxis->setLabel("t, s");
-    //this->QCustomPlot::yAxis->setLabel("ADC output, cnt");
-    //this->QCustomPlot::yAxis2->setVisible(true);
-    //this->QCustomPlot::yAxis2->setLabel("Current, nA");
-
     this->QCustomPlot::yAxis->setLabel("Current, nA");
     this->QCustomPlot::yAxis2->setVisible(true);
     this->QCustomPlot::yAxis2->setLabel("ADC output, cnt");
@@ -34,15 +30,61 @@ double QGraph::getNanoamperPerCount()
     return this->kNanoamperPerCount;
 }
 
-
-void QGraph::setNoise(int noise)
+void QGraph::updateNoise()
 {
-    this->noiseCount = noise;
+    this->clearGraph();
+
+    double oldNoiseNanoamper = this->noiseNanoamper;
+    double newNoiseNanoamper = 0;
+
+    for(int i = 0; i < this->yVec.size(); i++)
+    {
+        this->yVec[i] = this->yVec[i] + oldNoiseNanoamper;
+    }
+
+    // get raw average
+    for(auto val : this->yVec)
+    {
+        newNoiseNanoamper += val / this->yVec.size();
+    }
+    this->noiseNanoamper = newNoiseNanoamper;
+    this->noiseCount = static_cast<int>(newNoiseNanoamper / this->kNanoamperPerCount);
+
+    // update all vector
+    for(int i = 0; i < this->yVec.size(); i++)
+    {
+        this->yVec[i] = this->yVec[i] - newNoiseNanoamper;
+    }
 }
 
-int QGraph::getNoise()
+void QGraph::resetNoise()
+{
+    // clear graph
+    this->clearGraph();
+
+    double oldNoiseNanoamper = this->noiseNanoamper;
+    this->noiseCount = 0;
+    this->noiseNanoamper = 0;
+
+    for(int i = 0; i < this->yVec.size(); i++)
+    {
+        this->yVec[i] = this->yVec[i] + oldNoiseNanoamper;
+    }
+
+}
+
+int QGraph::getNoiseCount()
 {
     return this->noiseCount;
+}
+
+double QGraph::back()
+{
+    if(this->yVec.isEmpty())
+    {
+        return 0;
+    }
+    return this->yVec.back();
 }
 
 void QGraph::show()
@@ -183,6 +225,15 @@ void QGraph::replot()
     if(this->QCustomPlot::graphCount() == 1)
     {
         this->QCustomPlot::graph(0)->addData(this->tVec, this->yVec, true);
+        this->QCustomPlot::replot();
+    }
+}
+
+void QGraph::clearGraph()
+{
+    if(this->QCustomPlot::graphCount() == 1)
+    {
+        this->QCustomPlot::graph(0)->data()->clear();
         this->QCustomPlot::replot();
     }
 }

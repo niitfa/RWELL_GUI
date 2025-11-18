@@ -21,8 +21,11 @@ public:
 
     void setNanoamperPerCount(double);
     double getNanoamperPerCount();
-    void setNoise(int);
-    int getNoise();
+
+    void updateNoise();
+    void resetNoise();
+    int getNoiseCount();
+    double back();
 
     void setYAxisRange(double yMix, double yMax);
     void setTAxisRange(double tMin, double tMax);
@@ -39,7 +42,9 @@ private:
     QTime timer;
     bool enabled = true;
     double kNanoamperPerCount = 4e-8;
+
     int noiseCount = 0;
+    double noiseNanoamper = 0;
 
 
     QVector<double> yVec;
@@ -61,6 +66,7 @@ private:
     void setupGraph();
     void removeGraph();
     void replot();
+    void clearGraph();
 };
 
 #endif // QGRAPH_H

@@ -28,7 +28,8 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
         ui->lineEdit_currVolt,
         ui->lineEdit_currPressure,
         ui->lineEdit_remainedMeasNum,
-        ui->lineEdit_signalCurrent
+        ui->lineEdit_signalCurrent,
+        ui->lineEdit_backgroundCurrent
     };
     for(auto line : lineEditsRO)
     {
@@ -43,7 +44,7 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     // Init graph
     this->graph = new QGraph(ui->widget_graph);
     this->graph->setNanoamperPerCount(4e-8);
-    this->graph->setNoise(0);
+    this->graph->resetNoise();
     this->graph->setTAxisRange(0, static_cast<double>(this->tGraphRange));
     this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
 
@@ -52,16 +53,6 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_graphHorizontalRange->setText(QString::number(this->tGraphRange));
     ui->lineEdit_nAPerCount->setText(QString::number(this->graph->getNanoamperPerCount()));
 
-    // remove buttons` focus
-    ui->pushButton_resetScales->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_startGraph->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_stopGraph->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_switchRange->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_resetMeasure->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_startMeasure->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_changeVoltage->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_switchVoltPolarity->setFocusPolicy(Qt::NoFocus);
-    ui->pushButton_compensationBG->setFocusPolicy(Qt::NoFocus);
 
     // MCU connection
     this->receiver = new MessageReceiver();
@@ -161,7 +152,9 @@ void ChamberWindow::update()
         ui->lineEdit_averDR->setText(QString::number(averDoseRate));
         ui->lineEdit_currVolt->setText(QString::number(currVoltage));
         ui->lineEdit_currPressure->setText(QString::number(currPressure));
-        ui->lineEdit_signalCurrent->setText(QString::number(this->receiver->GetADCValue() * this->graph->getNanoamperPerCount()));
+        //ui->lineEdit_signalCurrent->setText(QString::number(this->receiver->GetADCValue() * this->graph->getNanoamperPerCount()));
+        ui->lineEdit_signalCurrent->setText(QString::number(this->graph->back()));
+        ui->lineEdit_backgroundCurrent->setText(QString::number(this->graph->getNoiseCount() * this->graph->getNanoamperPerCount()));
 
         if(!hvPolarity)  { ui->label_voltPolarity->setText(this->qStrPositivePolarity); }
         if(hvPolarity) { ui->label_voltPolarity->setText(this->qStrNegativePolarity); }
@@ -236,11 +229,6 @@ void ChamberWindow::on_pushButton_switchRange_clicked()
 
 void ChamberWindow::on_lineEdit_targetVolt_editingFinished()
 {
-    /*int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
-    if(targetVoltage < 0 || targetVoltage > this->maxVoltage)
-    {
-       // ui->lineEdit_targetVolt->setText("0");
-    } */
 }
 
 void ChamberWindow::on_pushButton_changeVoltage_clicked()
@@ -333,11 +321,6 @@ void ChamberWindow::on_pushButton_resetScales_clicked()
     ui->lineEdit_graphVerticalMin->setText(QString::fromStdString(std::to_string(static_cast<int>(this->yGraphMinRange))));
 }
 
-void ChamberWindow::on_pushButton_compensationBG_clicked()
-{
-
-}
-
 void ChamberWindow::on_lineEdit_nAPerCount_editingFinished()
 {
     double val = ui->lineEdit_nAPerCount->text().toDouble();
@@ -345,4 +328,14 @@ void ChamberWindow::on_lineEdit_nAPerCount_editingFinished()
     {
         this->graph->setNanoamperPerCount(val);
     }
+}
+
+void ChamberWindow::on_pushButton_compensateBG_clicked()
+{
+    this->graph->updateNoise();
+}
+
+void ChamberWindow::on_pushButton_resetBG_clicked()
+{
+    this->graph->resetNoise();
 }

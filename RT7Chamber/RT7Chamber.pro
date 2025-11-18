@@ -35,7 +35,6 @@ INCLUDEPATH += \
         src/windows \
         src/windows/mainwindow \
         src/windows/chamberwindow \
-        src/windows/noisemeasurmentwindow \
         src/graph \
         src/client
 
