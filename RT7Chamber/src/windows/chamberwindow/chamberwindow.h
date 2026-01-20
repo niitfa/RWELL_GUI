@@ -8,6 +8,7 @@
 #include "qgraph.h"
 #include "MessageReceiver.h"
 #include "MessageTransmitter.h"
+#include "scansessionfile.h"
 
 namespace Ui {
 class ChamberWindow;
@@ -61,7 +62,12 @@ private slots:
 
     void on_pushButton_resetBG_clicked();
 
+    void on_pushButton_writeToFile_clicked();
+
+    void on_lineEdit_writingPeriod_editingFinished();
+
 private:
+
     MessageReceiver* receiver = nullptr;
     MessageTransmitter* transmitter = nullptr;
     Ui::ChamberWindow *ui;
@@ -83,6 +89,11 @@ private:
     double yGraphMinRange = -9000000;
     double tGraphRange = 20;
     const int maxVoltage = 500;
+
+    // write to file
+    bool writingToFileStarted = 0;
+    int fileUpdatePeriod = 20 * 60;
+    ScanSessionFile session;
 
 private:
     void closeEvent(QCloseEvent *event) override;

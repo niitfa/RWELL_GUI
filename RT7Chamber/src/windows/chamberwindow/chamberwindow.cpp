@@ -38,8 +38,8 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     }
 
     // set initial values
-    ui->lineEdit_targetVolt->setText("0");
-    ui->lineEdit_targetMeasNum->setText("100");
+    ui->lineEdit_targetVolt->setText(QString::number(0));
+    ui->lineEdit_targetMeasNum->setText(QString::number(100));
 
     // Init graph
     this->graph = new QGraph(ui->widget_graph);
@@ -53,10 +53,13 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_graphHorizontalRange->setText(QString::number(this->tGraphRange));
     ui->lineEdit_nAPerCount->setText(QString::number(this->graph->getNanoamperPerCount()));
 
-
     // MCU connection
     this->receiver = new MessageReceiver();
     this->transmitter = new MessageTransmitter();
+
+    // write to file
+    this->fileUpdatePeriod = 20 * 60;
+    ui->lineEdit_writingPeriod->setText(QString::number(fileUpdatePeriod));
 }
 
 ChamberWindow::~ChamberWindow()
@@ -166,6 +169,13 @@ void ChamberWindow::update()
         if(this->graph)
         {
             this->graph->QGraph::updateCount(currDoseRate);
+        }
+
+        // file update
+        //int fileUpdatePeriod = ui->lineEdit_writingPeriod->text().toInt();
+        if(!(this->id % fileUpdatePeriod))
+        {
+            session.update({id, currDoseRate});
         }
     }
 
@@ -338,4 +348,45 @@ void ChamberWindow::on_pushButton_compensateBG_clicked()
 void ChamberWindow::on_pushButton_resetBG_clicked()
 {
     this->graph->resetNoise();
+}
+
+void ChamberWindow::on_pushButton_writeToFile_clicked()
+{
+    if(this->writingToFileStarted)
+    {
+        // action
+        ui->lineEdit_writingPeriod->setEnabled(1);
+        ui->pushButton_writeToFile->setText("Записать в файл");
+        // log - saved
+        session.stop();
+        // end action
+        this->writingToFileStarted = 0;
+    }
+    else
+    {
+        // action
+        ui->lineEdit_writingPeriod->setDisabled(1);
+        ui->pushButton_writeToFile->setText("Остановить запись");
+
+        // create file
+        if(session.start())
+        {
+            this->writingToFileStarted = 1;
+        }
+    }
+
+}
+
+void ChamberWindow::on_lineEdit_writingPeriod_editingFinished()
+{
+    int value = ui->lineEdit_writingPeriod->text().toInt();
+    if (value <= 0)
+    {
+        this->fileUpdatePeriod = 1;
+        ui->lineEdit_writingPeriod->setText(QString::number(this->fileUpdatePeriod));
+    }
+    else
+    {
+        this->fileUpdatePeriod = value;
+    }
 }
