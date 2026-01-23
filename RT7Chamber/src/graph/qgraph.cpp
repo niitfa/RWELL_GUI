@@ -224,6 +224,7 @@ void QGraph::replot()
 {
     if(this->QCustomPlot::graphCount() == 1)
     {
+        this->QCustomPlot::graph(0)->data()->clear(); // !!
         this->QCustomPlot::graph(0)->addData(this->tVec, this->yVec, true);
         this->QCustomPlot::replot();
     }

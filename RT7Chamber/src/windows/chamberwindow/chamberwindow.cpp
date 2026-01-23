@@ -15,7 +15,7 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     timer = new QTimer( this );
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->setSingleShot(false);
-    timer->setInterval(20);
+    timer->setInterval(10);
 
     //set readonly
     QPalette greyPalette;
@@ -172,9 +172,16 @@ void ChamberWindow::update()
         }
 
         // file update
-        //int fileUpdatePeriod = ui->lineEdit_writingPeriod->text().toInt();
+
+        if(this->pointIndex < (this->id / fileUpdatePeriod))
+        {
+            this->pointIndex = this->id / fileUpdatePeriod;
+            session.update({id, currDoseRate});
+        }
+
         if(!(this->id % fileUpdatePeriod))
         {
+
             session.update({id, currDoseRate});
         }
     }
@@ -371,6 +378,7 @@ void ChamberWindow::on_pushButton_writeToFile_clicked()
         // create file
         if(session.start())
         {
+            this->pointIndex = 0; // reset points counter
             this->writingToFileStarted = 1;
         }
     }

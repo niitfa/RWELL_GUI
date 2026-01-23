@@ -92,6 +92,7 @@ private:
 
     // write to file
     bool writingToFileStarted = 0;
+    int pointIndex = 0;
     int fileUpdatePeriod = 20 * 60;
     ScanSessionFile session;
 
