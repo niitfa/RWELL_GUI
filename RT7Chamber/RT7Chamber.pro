@@ -28,7 +28,7 @@ CONFIG += c++11
 SOURCES += $$files("*.cpp", true)
 HEADERS += $$files("*.h", true)
 FORMS += $$files("*.ui", true)
-
+RESOURCES += icons.qrc
 INCLUDEPATH += \
         src \
         src/util \

@@ -4,6 +4,11 @@
 #include <iostream>
 #include <QtMath>
 
+// 1) ChamberWindow::ChamberWindow(...) int interval = 10
+// 2) ChamberWindow::update(...) if(...)
+// 3) ChamberWindow::update(...) emul values
+// 3) ChamberWindow::update(...) id++ emul
+
 ChamberWindow::ChamberWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ChamberWindow)
@@ -12,10 +17,12 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     setWindowTitle("RWELL");
 
     //init timer
+    int interval = 50; // was 10
+
     timer = new QTimer( this );
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->setSingleShot(false);
-    timer->setInterval(10);
+    timer->setInterval(interval);
 
     //set readonly
     QPalette greyPalette;
@@ -138,24 +145,36 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
 void ChamberWindow::update()
 {
     // update message from MCU
-    if(this->id < receiver->GetMessageID())
+    //if(this->id < receiver->GetMessageID()) // real
+    if(1) // emulator
     {
-        id = receiver->GetMessageID();
+        //id = receiver->GetMessageID();
+        id++;
 
-        int cyclesRemained = receiver->GetMeasurementTime();
+           // real
+        /*int cyclesRemained = receiver->GetMeasurementTime();
         int currDoseRate = receiver->GetADCValue();
         int averDoseRate = receiver->GetADCAverageValue();
         int currVoltage = receiver->GetHVOut();
         int currPressure = receiver->GetPressurePa();
         int8_t hvPolarity = receiver->GetHVPolarity();
-        int8_t range = receiver->GetRange();
+        int8_t range = receiver->GetRange(); */
+
+            // emulator
+        int cyclesRemained = 0;
+        int currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
+        int averDoseRate = 230444;
+        int currVoltage = 50;
+        int currPressure = 1111;
+        int8_t hvPolarity = 0;
+        int8_t range = 1;
+
 
         ui->lineEdit_remainedMeasNum->setText(QString::number(cyclesRemained));
         ui->lineEdit_currDR->setText(QString::number(currDoseRate));
         ui->lineEdit_averDR->setText(QString::number(averDoseRate));
         ui->lineEdit_currVolt->setText(QString::number(currVoltage));
         ui->lineEdit_currPressure->setText(QString::number(currPressure));
-        //ui->lineEdit_signalCurrent->setText(QString::number(this->receiver->GetADCValue() * this->graph->getNanoamperPerCount()));
         ui->lineEdit_signalCurrent->setText(QString::number(this->graph->back()));
         ui->lineEdit_backgroundCurrent->setText(QString::number(this->graph->getNoiseCount() * this->graph->getNanoamperPerCount()));
 

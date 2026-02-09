@@ -20,14 +20,6 @@ public:
     ~MainWindow() override;
 
 private slots:
-    void on_lineEdit_IP3_editingFinished();
-
-    void on_lineEdit_IP2_editingFinished();
-
-    void on_lineEdit_IP1_editingFinished();
-
-    void on_lineEdit_IP0_editingFinished();
-
     void on_lineEdit_InputPort_editingFinished();
 
     void on_pushButton_Connect_clicked();
