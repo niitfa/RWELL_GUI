@@ -3,8 +3,10 @@
         <file>img/button_icon_start.png</file>
         <file>img/button_icon_pause.png</file>
         <file>img/button_icon_connect.png</file>
-		<file>img/button_icon_settings.png</file>
-		<file>img/button_icon_save.png</file>
-        <file>img/test_icon.png</file>
+	<file>img/button_icon_settings.png</file>
+	<file>img/button_icon_save.png</file>
+	<file>img/button_icon_reset.png</file>
+	<file>img/icon_activity.png</file>
+	<file>img/icon_voltage.png</file>
     </qresource>
 </RCC>

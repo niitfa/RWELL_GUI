@@ -28,25 +28,9 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     QPalette greyPalette;
     greyPalette.setColor(QPalette::Base, QColor(235, 235, 235));
 
-    QVector<QLineEdit*> lineEditsRO =
-    {
-        ui->lineEdit_averDR,
-        ui->lineEdit_currDR,
-        ui->lineEdit_currVolt,
-        ui->lineEdit_currPressure,
-        ui->lineEdit_remainedMeasNum,
-        ui->lineEdit_signalCurrent,
-        ui->lineEdit_backgroundCurrent
-    };
-    for(auto line : lineEditsRO)
-    {
-        line->setReadOnly(true);
-        line->setPalette(greyPalette);
-    }
-
     // set initial values
     ui->lineEdit_targetVolt->setText(QString::number(0));
-    ui->lineEdit_targetMeasNum->setText(QString::number(100));
+    //ui->lineEdit_targetMeasNum->setText(QString::number(100));
 
     // Init graph
     this->graph = new QGraph(ui->widget_graph);
@@ -67,6 +51,16 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     // write to file
     this->fileUpdatePeriod = 20 * 60;
     ui->lineEdit_writingPeriod->setText(QString::number(fileUpdatePeriod));
+
+
+    // value widgets
+    ui->widget_currentActivity->setHeadText("Активность, МБк:");
+    ui->widget_averageActivity->setHeadText("Средняя активность, МБк:");
+    ui->widget_current->setHeadText("Ток, нА:");
+    ui->widget_noiseCurrent->setHeadText("Фоновый ток, нА:");
+    ui->widget_voltage->setHeadText("Напряжение, В:");
+    ui->widget_pressure->setHeadText("Давление, атм:");
+
 }
 
 ChamberWindow::~ChamberWindow()
@@ -161,22 +155,21 @@ void ChamberWindow::update()
         int8_t range = receiver->GetRange(); */
 
             // emulator
-        int cyclesRemained = 0;
+        int cyclesRemained = 33;
         int currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
         int averDoseRate = 230444;
         int currVoltage = 50;
-        int currPressure = 1111;
+        int currPressure = 1197;
         int8_t hvPolarity = 0;
         int8_t range = 1;
 
-
-        ui->lineEdit_remainedMeasNum->setText(QString::number(cyclesRemained));
-        ui->lineEdit_currDR->setText(QString::number(currDoseRate));
-        ui->lineEdit_averDR->setText(QString::number(averDoseRate));
-        ui->lineEdit_currVolt->setText(QString::number(currVoltage));
-        ui->lineEdit_currPressure->setText(QString::number(currPressure));
-        ui->lineEdit_signalCurrent->setText(QString::number(this->graph->back()));
-        ui->lineEdit_backgroundCurrent->setText(QString::number(this->graph->getNoiseCount() * this->graph->getNanoamperPerCount()));
+        ui->widget_activityMenu->setMeasuresCompleted(cyclesRemained);
+        ui->widget_currentActivity->setValueText(QString::number(currDoseRate));
+        ui->widget_averageActivity->setValueText(QString::number(averDoseRate));
+        ui->widget_voltage->setValueText(QString::number(currVoltage));
+        ui->widget_noiseCurrent->setValueText(QString::number(this->graph->getNoiseCount() * this->graph->getNanoamperPerCount()));
+        ui->widget_current->setValueText(QString::number(this->graph->back()));
+        ui->widget_pressure->setValueText(QString::number(static_cast<float>(currPressure) / 100.));
 
         if(!hvPolarity)  { ui->label_voltPolarity->setText(this->qStrPositivePolarity); }
         if(hvPolarity) { ui->label_voltPolarity->setText(this->qStrNegativePolarity); }
@@ -210,28 +203,6 @@ void ChamberWindow::update()
     ui->pushButton_switchVoltPolarity->setEnabled( qAbs(receiver->GetHVOut()) <  (switchVoltageLimit) );
 }
 
-void ChamberWindow::on_lineEdit_targetMeasNum_editingFinished()
-{
-
-}
-
-void ChamberWindow::on_pushButton_startMeasure_clicked()
-{
-    this->ChamberWindow::on_pushButton_resetMeasure_clicked();
-    if(this->transmitter)
-    {
-        int cycles = ui->lineEdit_targetMeasNum->text().toInt();
-        transmitter->startMeasurement(cycles);
-    }
-}
-
-void ChamberWindow::on_pushButton_resetMeasure_clicked()
-{
-    if(this->transmitter)
-    {
-        transmitter->resetMeasurement();
-    }
-}
 
 void ChamberWindow::on_pushButton_switchVoltPolarity_clicked()
 {

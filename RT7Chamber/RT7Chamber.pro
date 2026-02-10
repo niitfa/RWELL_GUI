@@ -32,6 +32,7 @@ RESOURCES += icons.qrc
 INCLUDEPATH += \
         src \
         src/util \
+        src/widgets \
         src/windows \
         src/windows/mainwindow \
         src/windows/chamberwindow \
