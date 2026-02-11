@@ -22,6 +22,9 @@ public:
     void setNanoamperPerCount(double);
     double getNanoamperPerCount();
 
+    //void setNanoamperPerCount(double);
+    //double getNanoamperPerCount();
+
     void updateNoise();
     void resetNoise();
     int getNoiseCount();
@@ -42,10 +45,10 @@ private:
     QTime timer;
     bool enabled = true;
     double kNanoamperPerCount = 4e-8;
-
     int noiseCount = 0;
     double noiseNanoamper = 0;
 
+    // MBq per count
 
     QVector<double> yVec;
     QVector<double> tVec;
@@ -58,7 +61,6 @@ private:
     // y axis
     double yMin = 0;
     double yMax = 100;
-
 private:
     void updateTimeVector(double t);
     bool isLimitTimeExceeded();
@@ -67,6 +69,8 @@ private:
     void removeGraph();
     void replot();
     void clearGraph();
+private slots:
+    void showPointToolTip(QMouseEvent*);
 };
 
 #endif // QGRAPH_H

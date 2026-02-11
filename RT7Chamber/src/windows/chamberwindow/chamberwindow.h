@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QTimer>
 #include <QtMath>
+#include <QFont>
 #include <QString>
 #include "qgraph.h"
 #include "MessageReceiver.h"
@@ -30,17 +31,7 @@ public:
 private slots:
     void update();
 
-    void on_pushButton_switchVoltPolarity_clicked();
-
-    void on_pushButton_switchRange_clicked();
-
-    void on_lineEdit_targetVolt_editingFinished();
-
-    void on_pushButton_changeVoltage_clicked();
-
     void on_pushButton_startGraph_clicked();
-
-    void on_pushButton_stopGraph_clicked();
 
     void on_lineEdit_graphHorizontalRange_editingFinished();
 
@@ -55,11 +46,11 @@ private slots:
     void on_pushButton_compensateBG_clicked();
 
     void on_pushButton_resetBG_clicked();
+private:
+    double getBqPerCount();
 
-    void on_pushButton_writeToFile_clicked();
-
-    void on_lineEdit_writingPeriod_editingFinished();
-
+    void setStartStyle(QPushButton*);
+    void setStopStyle(QPushButton*);
 private:
 
     MessageReceiver* receiver = nullptr;
@@ -67,29 +58,33 @@ private:
     Ui::ChamberWindow *ui;
     QTimer* timer = nullptr;
 
-    // ranges
-    QString qStrBroadRange = "широкий";
-    QString qStrNarrowRange = "узкий";
-
-    // polarities
-    QString qStrPositivePolarity = "положит. (+)";
-    QString qStrNegativePolarity = "отрицат. (-)";
-
     int id = 0;
 
     // Graph
     QGraph* graph = nullptr;
-    double yGraphMaxRange = 9000000;
-    double yGraphMinRange = -9000000;
+    double yGraphMaxRange = 90000; // was 9000000
+    double yGraphMinRange = -90000;
     double tGraphRange = 20;
     const int maxVoltage = 500;
 
+    // MBq per count
+    double kBqPerCount_coarse = 13000;
+    double kSense = 100;
+    double kBqPerCount_fine = kBqPerCount_coarse / kSense;
+    double kBqPerCountCurrent = kBqPerCount_coarse;
+    int prevRange = 2; // nor 0 not 1
+
+    // nA per count
+    double kNanoAmperPerCount = 4e-8;
+
     // write to file
-    bool writingToFileStarted = 0;
-    int pointIndex = 0;
-    int fileUpdatePeriod = 20 * 60;
     ScanSessionFile session;
 
+    // start graph button state
+    bool graphStarted = 1;
+
+    // font
+    QFont buttonsFont;
 private:
     void closeEvent(QCloseEvent *event) override;
     void resizeEvent(QResizeEvent *) override;

@@ -40,22 +40,6 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>10</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QLabel" name="label_head">
            <property name="text">
             <string>Активность</string>
@@ -167,13 +151,13 @@
                  <property name="minimumSize">
                   <size>
                    <width>60</width>
-                   <height>0</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>60</width>
-                   <height>16777215</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="alignment">

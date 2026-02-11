@@ -6,12 +6,14 @@ QGraph::QGraph(QWidget *parent) :
     QCustomPlot(parent),
     ui(new Ui::QGraph)
 {
+    connect(this, SIGNAL(mouseMove(QMouseEvent*)), this,SLOT(showPointToolTip(QMouseEvent*)));
     ui->setupUi(this);
-    this->QCustomPlot::xAxis->setLabel("t, s");
-    this->QCustomPlot::yAxis->setLabel("Current, nA");
-    this->QCustomPlot::yAxis2->setVisible(true);
-    this->QCustomPlot::yAxis2->setLabel("ADC output, cnt");
+    this->QCustomPlot::xAxis->setLabel("Время, c");
+    this->QCustomPlot::yAxis->setLabel("Активность, МБк");
+    //this->QCustomPlot::yAxis2->setVisible(true);
+    //this->QCustomPlot::yAxis2->setLabel("ADC output, cnt");
     this->setupGraph();
+    //this->setBackground(QColor(200, 200, 200, 0));
 }
 
 QGraph::~QGraph()
@@ -129,8 +131,9 @@ void QGraph::setYAxisRange(double yMin, double yMax)
 {
     this->yMin = yMin;
     this->yMax = yMax;
-    this->QCustomPlot::yAxis->setRange(this->yMin * this->kNanoamperPerCount, this->yMax * this->kNanoamperPerCount);
-    this->QCustomPlot::yAxis2->setRange(this->yMin, this->yMax);
+    //this->QCustomPlot::yAxis->setRange(this->yMin * this->kNanoamperPerCount, this->yMax * this->kNanoamperPerCount);
+    this->QCustomPlot::yAxis->setRange(this->yMin, this->yMax);
+    //this->QCustomPlot::yAxis2->setRange(this->yMin, this->yMax);
     this->QGraph::replot();
 }
 
@@ -206,8 +209,10 @@ void QGraph::setupGraph()
     {
         this->QCustomPlot::addGraph();
         QPen pen;
-        pen.setColor(Qt::red);
-        pen.setWidth(2);
+        QColor graphColor;
+        graphColor.setRgb(0, 100, 0);
+        pen.setColor(graphColor);
+        pen.setWidth(3);
         this->QCustomPlot::graph(0)->setPen(pen);
     }
 }
@@ -236,5 +241,34 @@ void QGraph::clearGraph()
     {
         this->QCustomPlot::graph(0)->data()->clear();
         this->QCustomPlot::replot();
+    }
+}
+
+//#include <iostream>
+void QGraph::showPointToolTip(QMouseEvent * event)
+{
+   // std::cout << "selected: " << QCPGraph::selectTest() << std::endl;
+    if(1)
+    {
+        double x = this->xAxis->pixelToCoord(event->pos().x());
+        double y = this->yAxis->pixelToCoord(event->pos().y());
+
+        // find nearest index
+        if(this->tVec.size() > 1)
+        {
+            if(x < this->tVec.front() || x > this->tVec.back()) { return; }
+
+            double x_base = this->tVec[0];
+            double x_delta = this->tVec[1] - this->tVec[0];
+
+            int index = static_cast<int>(floor((x - x_base) / x_delta));
+
+            if(index < this->yVec.size())
+            {
+                double x_show = x_base + index * x_delta;
+                double y_show = this->yVec[index];
+                setToolTip(QString("%1 с, %2 МБк").arg(x_show).arg(y_show));
+            }
+        }
     }
 }

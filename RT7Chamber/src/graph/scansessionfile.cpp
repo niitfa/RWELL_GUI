@@ -65,10 +65,8 @@ void ScanSessionFile::update(QVector<int> data)
                 stream << endl;
                 pointFile.close();
             }
-
         }
     }
-
 }
 
 void ScanSessionFile::stop()

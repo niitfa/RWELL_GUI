@@ -29,29 +29,41 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     greyPalette.setColor(QPalette::Base, QColor(235, 235, 235));
 
     // set initial values
-    ui->lineEdit_targetVolt->setText(QString::number(0));
+    //ui->lineEdit_targetVolt->setText(QString::number(0));
     //ui->lineEdit_targetMeasNum->setText(QString::number(100));
-
-    // Init graph
-    this->graph = new QGraph(ui->widget_graph);
-    this->graph->setNanoamperPerCount(4e-8);
-    this->graph->resetNoise();
-    this->graph->setTAxisRange(0, static_cast<double>(this->tGraphRange));
-    this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
-
-    ui->lineEdit_graphVerticalMax->setText(QString::number(this->yGraphMaxRange));
-    ui->lineEdit_graphVerticalMin->setText(QString::number(this->yGraphMinRange));
-    ui->lineEdit_graphHorizontalRange->setText(QString::number(this->tGraphRange));
-    ui->lineEdit_nAPerCount->setText(QString::number(this->graph->getNanoamperPerCount()));
 
     // MCU connection
     this->receiver = new MessageReceiver();
     this->transmitter = new MessageTransmitter();
 
-    // write to file
-    this->fileUpdatePeriod = 20 * 60;
-    ui->lineEdit_writingPeriod->setText(QString::number(fileUpdatePeriod));
+    // Init graph
+    this->graph = new QGraph(ui->widget_graph);
+    this->graph->setNanoamperPerCount(this->kBqPerCount_coarse * 1e-6); // MBq per count!!
+    this->graph->resetNoise();
+    this->graph->setTAxisRange(0, static_cast<double>(this->tGraphRange));
+    this->graph->setYAxisRange(this->yGraphMinRange, this->yGraphMaxRange);
 
+    // line edits
+    ui->lineEdit_graphVerticalMax->setText(QString::number(this->yGraphMaxRange));
+    ui->lineEdit_graphVerticalMin->setText(QString::number(this->yGraphMinRange));
+    ui->lineEdit_graphHorizontalRange->setText(QString::number(this->tGraphRange));
+    //ui->lineEdit_nAPerCount->setText(QString::number(this->graph->getNanoamperPerCount()));
+    ui->lineEdit_nAPerCount->setText(QString::number(this->graph->getNanoamperPerCount() * 1e+6)); //  MBq per count!!!
+
+    // voltage menu widget
+    ui->widget_voltageMenu->registerConnectors(this->receiver, this->transmitter);
+    // activity menu widget
+    ui->widget_activityMenu->registerConnectors(this->receiver, this->transmitter);
+    // polarity menu widget
+    ui->widget_polarityMenu->registerConnectors(this->receiver, this->transmitter);
+    // sensivity menu widget
+    ui->widget_sensivityMenu->registerConnectors(this->receiver, this->transmitter);
+    // save to file widget
+    ui->widget_fileMenu->setSession(&this->session);
+
+    // start graph button
+    this->graphStarted = 1;
+    this->setStopStyle(ui->pushButton_startGraph);
 
     // value widgets
     ui->widget_currentActivity->setHeadText("Активность, МБк:");
@@ -61,6 +73,28 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->widget_voltage->setHeadText("Напряжение, В:");
     ui->widget_pressure->setHeadText("Давление, атм:");
 
+    // buttons
+    buttonsFont.setFamily("Inter");
+    buttonsFont.setPixelSize(15);
+    buttonsFont.setWeight(50);
+
+    // hide buttons
+    ui->pushButton_compensateBG->hide();
+    ui->pushButton_resetBG->hide();
+
+    // set fonts
+    ui->pushButton_compensateBG->setFont(buttonsFont);
+    ui->pushButton_resetBG->setFont(buttonsFont);
+    ui->pushButton_resetScales->setFont(buttonsFont);
+    ui->pushButton_startGraph->setFont(buttonsFont);
+    ui->label->setFont(buttonsFont);
+    ui->label_2->setFont(buttonsFont);
+    ui->label_16->setFont(buttonsFont);
+    ui->label_19->setFont(buttonsFont);
+    ui->lineEdit_graphHorizontalRange->setFont(buttonsFont);
+    ui->lineEdit_graphVerticalMax->setFont(buttonsFont);
+    ui->lineEdit_graphVerticalMin->setFont(buttonsFont);
+    ui->lineEdit_nAPerCount->setFont(buttonsFont);
 }
 
 ChamberWindow::~ChamberWindow()
@@ -147,8 +181,8 @@ void ChamberWindow::update()
 
            // real
         /*int cyclesRemained = receiver->GetMeasurementTime();
-        int currDoseRate = receiver->GetADCValue();
-        int averDoseRate = receiver->GetADCAverageValue();
+        int currDoseRate = receiver->GetADCValue() * getBqPerCount();
+        int averDoseRate = receiver->GetADCAverageValue() * getBqPerCount();
         int currVoltage = receiver->GetHVOut();
         int currPressure = receiver->GetPressurePa();
         int8_t hvPolarity = receiver->GetHVPolarity();
@@ -158,115 +192,80 @@ void ChamberWindow::update()
         int cyclesRemained = 33;
         int currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
         int averDoseRate = 230444;
-        int currVoltage = 50;
-        int currPressure = 1197;
+        int currVoltage = ui->widget_voltageMenu->getInputVoltage();//->widget_voltage->; // debug !!!! 50
+        int currPressure = 1190;
         int8_t hvPolarity = 0;
         int8_t range = 1;
 
         ui->widget_activityMenu->setMeasuresCompleted(cyclesRemained);
-        ui->widget_currentActivity->setValueText(QString::number(currDoseRate));
-        ui->widget_averageActivity->setValueText(QString::number(averDoseRate));
+
+        // curren activity field
+        //QString currActivityStr = getSubstringNumber(currDoseRate, 6);
+        //ui->widget_currentActivity->setValueText(currActivityStr);
+        ui->widget_currentActivity->setValueText(QString::number(currDoseRate * getBqPerCount() * 1e-6, 'f', 0));
+
+        // average activity field
+        //QString averActivityStr = getSubstringNumber(averDoseRate, 4);
+        ui->widget_averageActivity->setValueText(QString::number(averDoseRate * getBqPerCount() * 1e-6, 'f', 0));
+
+        // curr voltage minus sigh
+        hvPolarity ?  currVoltage = -currVoltage : 1;
         ui->widget_voltage->setValueText(QString::number(currVoltage));
-        ui->widget_noiseCurrent->setValueText(QString::number(this->graph->getNoiseCount() * this->graph->getNanoamperPerCount()));
-        ui->widget_current->setValueText(QString::number(this->graph->back()));
-        ui->widget_pressure->setValueText(QString::number(static_cast<float>(currPressure) / 100.));
 
-        if(!hvPolarity)  { ui->label_voltPolarity->setText(this->qStrPositivePolarity); }
-        if(hvPolarity) { ui->label_voltPolarity->setText(this->qStrNegativePolarity); }
+        // noise current field
+        //QString noiseCurrentStr = getSubstringNumber(this->graph->getNoiseCount() * this->kNanoAmperPerCount, 6);
+        ui->widget_noiseCurrent->setValueText(QString::number(this->graph->getNoiseCount() * this->kNanoAmperPerCount, 'f', 4));
 
-        if(!range) { ui->label_range->setText(this->qStrBroadRange); }
-        if(range) { ui->label_range->setText(this->qStrNarrowRange); }
+        // curr current field
+        //QString currCurrentStr = getSubstringNumber(currDoseRate * this->kNanoAmperPerCount, 6);
+        ui->widget_current->setValueText(QString::number(currDoseRate * this->kNanoAmperPerCount, 'f', 4));
+
+        ui->widget_pressure->setValueText(QString::number((currPressure) / 100., 'f', 2) + " / 12.00");
+        ui->widget_polarityMenu->setPolarity(hvPolarity);
+        ui->widget_sensivityMenu->setSensivity(range);
+
+
+        // rescale y-axis
+        if(range != this->prevRange)
+        {
+           this->graph->setNanoamperPerCount(this->getBqPerCount() * 1e-6); // MBq per count!!
+           this->prevRange = range;
+        }
 
         // graph update
         if(this->graph)
         {
+            // calc activity
             this->graph->QGraph::updateCount(currDoseRate);
         }
-
         // file update
-
-        if(this->pointIndex < (this->id / fileUpdatePeriod))
-        {
-            this->pointIndex = this->id / fileUpdatePeriod;
-            session.update({id, currDoseRate});
-        }
-
-        if(!(this->id % fileUpdatePeriod))
-        {
-
-            session.update({id, currDoseRate});
-        }
+        ui->widget_fileMenu->update(id, currDoseRate);
     }
 
     // update switch voltage button state
     const int switchVoltageLimit = static_cast<int>(this->maxVoltage * 0.05);
-    ui->pushButton_switchVoltPolarity->setEnabled( qAbs(receiver->GetHVOut()) <  (switchVoltageLimit) );
-}
-
-
-void ChamberWindow::on_pushButton_switchVoltPolarity_clicked()
-{
-    if(this->transmitter && this->receiver)
-    {
-         if(receiver->GetHVPolarity())
-         {
-             this->transmitter->setPositiveVoltage();
-         }
-         else
-         {
-             this->transmitter->setNegativeVoltage();
-         }
-    }
-}
-
-void ChamberWindow::on_pushButton_switchRange_clicked()
-{
-    if(this->transmitter && this->receiver)
-    {
-         if(receiver->GetRange())
-         {
-             this->transmitter->setBroadRange();
-         }
-         else
-         {
-             this->transmitter->setNarrowRange();
-         }
-    }
-}
-
-void ChamberWindow::on_lineEdit_targetVolt_editingFinished()
-{
-}
-
-void ChamberWindow::on_pushButton_changeVoltage_clicked()
-{
-    int targetVoltage = ui->lineEdit_targetVolt->text().toInt();
-    if(this->transmitter)
-    {
-        if(targetVoltage < 0 || targetVoltage > this->maxVoltage) // check range
-        {
-            // bad value
-            QMessageBox::critical(this,
-                                  "Ошибка!",
-                                  "Допустимый диапазон:\nV мин. = 0 В\nV макс. = " + QString::number(this->maxVoltage) + " B"
-                                  );
-        }
-        else
-        {
-            // good value
-            this->transmitter->setVoltageValue(static_cast<uint16_t>(targetVoltage));
-        }
-    }
+    ui->widget_polarityMenu->enableWidget( qAbs(receiver->GetHVOut()) <  (switchVoltageLimit) );
 }
 
 void ChamberWindow::on_pushButton_startGraph_clicked()
 {
-    if(this->graph) { this->graph->setEnabled(true); }
-}
-
-void ChamberWindow::on_pushButton_stopGraph_clicked()
-{
-    if(this->graph) { this->graph->setEnabled(false); }
+    if(this->graphStarted)
+    {
+        if(this->graph)
+        {
+            this->graph->setEnabled(false);
+            this->setStartStyle(ui->pushButton_startGraph);
+        }
+    }
+    else
+    {
+        if(this->graph)
+        {
+            this->graph->setEnabled(true);
+            this->setStopStyle(ui->pushButton_startGraph);
+        }
+    }
+    this->graphStarted = !this->graphStarted;
 }
 
 void ChamberWindow::on_lineEdit_graphHorizontalRange_editingFinished()
@@ -283,8 +282,6 @@ void ChamberWindow::on_lineEdit_graphHorizontalRange_editingFinished()
                      QString::fromStdString(std::to_string(this->graph->getTimeRange()))
                      );
     }
-
-
 }
 
 void ChamberWindow::on_lineEdit_graphVerticalMin_editingFinished()
@@ -330,11 +327,14 @@ void ChamberWindow::on_pushButton_resetScales_clicked()
 
 void ChamberWindow::on_lineEdit_nAPerCount_editingFinished()
 {
+    // MBq!!!
     double val = ui->lineEdit_nAPerCount->text().toDouble();
     if(val != 0.)
     {
-        this->graph->setNanoamperPerCount(val);
+        this->kBqPerCount_coarse = val;
+        this->graph->setNanoamperPerCount(getBqPerCount());
     }
+
 }
 
 void ChamberWindow::on_pushButton_compensateBG_clicked()
@@ -347,44 +347,71 @@ void ChamberWindow::on_pushButton_resetBG_clicked()
     this->graph->resetNoise();
 }
 
-void ChamberWindow::on_pushButton_writeToFile_clicked()
+double ChamberWindow::getBqPerCount()
 {
-    if(this->writingToFileStarted)
+    if(receiver)
     {
-        // action
-        ui->lineEdit_writingPeriod->setEnabled(1);
-        ui->pushButton_writeToFile->setText("Записать в файл");
-        // log - saved
-        session.stop();
-        // end action
-        this->writingToFileStarted = 0;
-    }
-    else
-    {
-        // action
-        ui->lineEdit_writingPeriod->setDisabled(1);
-        ui->pushButton_writeToFile->setText("Остановить запись");
-
-        // create file
-        if(session.start())
+        if(receiver->GetRange())
         {
-            this->pointIndex = 0; // reset points counter
-            this->writingToFileStarted = 1;
+            return this->kBqPerCount_coarse / this->kSense;
+        }
+        else
+        {
+            return this->kBqPerCount_coarse;
         }
     }
-
+    return this->kBqPerCount_coarse;
 }
 
-void ChamberWindow::on_lineEdit_writingPeriod_editingFinished()
+void ChamberWindow::setStartStyle(QPushButton * button)
 {
-    int value = ui->lineEdit_writingPeriod->text().toInt();
-    if (value <= 0)
-    {
-        this->fileUpdatePeriod = 1;
-        ui->lineEdit_writingPeriod->setText(QString::number(this->fileUpdatePeriod));
-    }
-    else
-    {
-        this->fileUpdatePeriod = value;
-    }
+    QIcon icon(":/img/button_icon_start.png");
+    int iconSize = 14;
+    button->setIcon(icon);
+    button->setIconSize(QSize(iconSize,iconSize));
+    button->setFont(buttonsFont);
+    button->setText(" Возобновить");
+
+    button->setStyleSheet(
+                // unpressed
+                "QPushButton { border-style: outset; }"
+                "QPushButton { border-radius:5px; }"
+                "QPushButton { border-width:1px; }"
+                "QPushButton { border-color: rgb(50,100,210); }"
+                "QPushButton { background-color: rgb(60,120,230); }"
+                "QPushButton { color: white; }"
+                // hover
+                "QPushButton:hover { background-color: rgb(40,100,200);  }"
+                // pressed
+                "QPushButton:pressed { background-color: rgb(30,80,170);  }"
+                ); // Start */
+    button->setFocusPolicy( Qt::FocusPolicy::NoFocus );
+
 }
+
+void ChamberWindow::setStopStyle(QPushButton * button)
+{
+    QIcon icon(":/img/button_icon_stop.png");
+    int iconSize = 14;
+    button->setIcon(icon);
+    button->setIconSize(QSize(iconSize,iconSize));
+    button->setFont(buttonsFont);
+    button->setText(" Остановить");
+
+    button->setStyleSheet(
+                // unpressed
+                "QPushButton { border-style: outset; }"
+                "QPushButton { border-radius:5px; }"
+                "QPushButton { border-width:1px; }"
+                "QPushButton { border-color: rgb(50,100,210); }"
+                "QPushButton { background-color: rgb(60,120,230); }"
+                "QPushButton { color: white; }"
+                // hover
+                "QPushButton:hover { background-color: rgb(40,100,200);  }"
+                // pressed
+                "QPushButton:pressed { background-color: rgb(30,80,170);  }"
+                ); // Start */
+    button->setFocusPolicy( Qt::FocusPolicy::NoFocus );
+
+}
+

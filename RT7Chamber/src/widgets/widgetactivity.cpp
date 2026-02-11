@@ -37,6 +37,9 @@ WidgetActivity::WidgetActivity(QWidget *parent) :
     int iconSize = 24;
     ui->label_headIcon->clear();
     ui->label_headIcon->setPixmap(headIcon.pixmap(iconSize, iconSize));
+    ui->label_headIcon->setStyleSheet(
+                "border-width:0px;"
+                );
 
     // head text
     QFont headFont;
@@ -116,15 +119,6 @@ WidgetActivity::WidgetActivity(QWidget *parent) :
 WidgetActivity::~WidgetActivity()
 {
     delete ui;
-}
-
-void WidgetActivity::updateWidget()
-{
-    if(this->receiver)
-    {
-        int measuresCompleted = receiver->GetMeasurementTime();
-        ui->label_measuresCompleted->setText(QString::number(measuresCompleted));
-    }
 }
 
 void WidgetActivity::setMeasuresCompleted(int val)

@@ -17,7 +17,7 @@ WidgetValue::WidgetValue(QWidget *parent) :
 
     QFont valueFont;
     valueFont.setFamily("Inter");
-    valueFont.setPixelSize(28);
+    valueFont.setPixelSize(40); // 28
     valueFont.setWeight(60);
 
     // border

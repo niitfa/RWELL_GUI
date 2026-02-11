@@ -17,7 +17,7 @@ class WidgetActivity : public QWidget
 public:
     explicit WidgetActivity(QWidget *parent = nullptr);
     ~WidgetActivity();
-    void updateWidget();
+    void registerConnectors(MessageReceiver*, MessageTransmitter*);
 
     void setMeasuresCompleted(int);
 
@@ -27,7 +27,6 @@ private slots:
 
 private:
     Ui::WidgetActivity *ui;
-    void registerConnectors(MessageReceiver*, MessageTransmitter*);
     void drawStartStateButton();
     void drawStopStateButton();
     void drawCurrentStartButtonState();
