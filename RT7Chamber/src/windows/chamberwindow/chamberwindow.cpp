@@ -104,16 +104,18 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
 
     // bottom label rwell
     QFont rwellFont;
-    rwellFont.setFamily("Inter");
+    rwellFont.setFamily("Bounded");
     rwellFont.setPixelSize(40);
-    rwellFont.setWeight(50);
+    rwellFont.setWeight(80);
 
-    ui->label_textRWELL->setFont(rwellFont);
-    ui->label_textRWELL->setStyleSheet(
-                "color: rgb(50,70,100);"
-                );
-    ui->label_textRWELL->setText("RWELL");
-    ui->label_textRWELL->hide();
+    //ui->label_textRWELL->setFont(rwellFont);
+   // ui->label_textRWELL->setStyleSheet(
+    //            "color: rgb(129,142,172);"
+    //            );
+   // ui->label_textRWELL->setText("RWELL");
+    double k = 0.18;
+    ui->label_textRWELL->setPixmap(QIcon(":/img/icon_rwell.png").pixmap(QSize(1178 * k, 163 * k)));
+    //ui->label_textRWELL->hide();
 
     ui->label_iconRWELL->hide();
 

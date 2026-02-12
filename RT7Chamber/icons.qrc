@@ -16,5 +16,6 @@
 	<file>img/icon_minus_dark.png</file>
 	<file>img/icon_sensivity.png</file>
 	<file>img/icon_file.png</file>
+	<file>img/icon_rwell.png</file>
     </qresource>
 </RCC>
