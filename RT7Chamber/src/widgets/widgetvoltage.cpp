@@ -24,7 +24,7 @@ WidgetVoltage::WidgetVoltage(QWidget *parent) :
     // external frame
     ui->frame_borderExternal->setStyleSheet(
                 " QFrame { background-color: rgb(230,230,230); } "
-                " QFrame { border-radius:10px; }"
+                " QFrame { border-radius:15px; }"
                 " QFrame { border-style: outset; }"
                 " QFrame { border-width:1px; }"
                 " QFrame { border-color:rgb(150,150,150); }"
@@ -65,7 +65,7 @@ WidgetVoltage::WidgetVoltage(QWidget *parent) :
 
     // change voltage button
     ui->pushButton_changeVoltage->setFont(buttonsFont);
-    ui->pushButton_changeVoltage->setText("Изм. напряжение");
+    ui->pushButton_changeVoltage->setText("Изменить напряжение");
     ui->pushButton_changeVoltage->setFocusPolicy( Qt::FocusPolicy::NoFocus );
     ui->pushButton_changeVoltage->setStyleSheet(
                 // unpressed

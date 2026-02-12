@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
-    <height>303</height>
+    <width>514</width>
+    <height>335</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -245,7 +245,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Входящий порт</string>
+             <string>Вход. порт</string>
             </property>
            </widget>
           </item>
@@ -259,13 +259,13 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>130</width>
+              <width>140</width>
               <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>110</width>
+              <width>140</width>
               <height>16777215</height>
              </size>
             </property>
@@ -315,7 +315,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Исходящий порт</string>
+             <string>Исход. порт</string>
             </property>
            </widget>
           </item>
@@ -335,7 +335,7 @@
             </property>
             <property name="maximumSize">
              <size>
-              <width>110</width>
+              <width>130</width>
               <height>16777215</height>
              </size>
             </property>

@@ -22,7 +22,7 @@ WidgetSensivity::WidgetSensivity(QWidget *parent) :
     // external frame
     ui->frame_borderExternal->setStyleSheet(
                 " QFrame { background-color: rgb(230,230,230); } "
-                " QFrame { border-radius:10px; }"
+                " QFrame { border-radius:15px; }"
                 " QFrame { border-style: outset; }"
                 " QFrame { border-width:1px; }"
                 " QFrame { border-color:rgb(150,150,150); }"
@@ -54,6 +54,16 @@ WidgetSensivity::WidgetSensivity(QWidget *parent) :
                 );
     ui->label_headText->setFont(headFont);
     ui->label_headText->setText("Чувствительность");
+
+    // buttons
+    buttonsFont.setFamily("Inter");
+    buttonsFont.setPixelSize(15);
+    buttonsFont.setWeight(50);
+
+    ui->pushButton_sensivityLow->setFont(buttonsFont);
+    ui->pushButton_sensivityLow->setText("Низкая");
+    ui->pushButton_sensivityHigh->setFont(buttonsFont);
+    ui->pushButton_sensivityHigh->setText("Высокая");
 
     setSensivity(!this->lastSensivity);
 }

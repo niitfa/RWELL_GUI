@@ -23,7 +23,7 @@ WidgetFile::WidgetFile(QWidget *parent) :
     // external frame
     ui->frame_borderExternal->setStyleSheet(
                 " QFrame { background-color: rgb(230,230,230); } "
-                " QFrame { border-radius:10px; }"
+                " QFrame { border-radius:15px; }"
                 " QFrame { border-style: outset; }"
                 " QFrame { border-width:1px; }"
                 " QFrame { border-color:rgb(150,150,150); }"

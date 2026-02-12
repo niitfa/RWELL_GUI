@@ -14,10 +14,10 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui(new Ui::ChamberWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("RWELL");
+    this->setWindowTitle("RWELL");
 
     //init timer
-    int interval = 50; // was 10
+    int interval = 10; // was 10
 
     timer = new QTimer( this );
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -78,9 +78,15 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     buttonsFont.setPixelSize(15);
     buttonsFont.setWeight(50);
 
-    // hide buttons
+    // buttons
     ui->pushButton_compensateBG->hide();
+    //ui->pushButton_compensateBG->setFont(buttonsFont);
+    //ui->pushButton_compensateBG->setText("Вычесть фон");
     ui->pushButton_resetBG->hide();
+
+    // check box
+    ui->checkBox_noise->setFont(buttonsFont);
+    ui->checkBox_noise->setText("Вычесть фон");
 
     // set fonts
     ui->pushButton_compensateBG->setFont(buttonsFont);
@@ -95,6 +101,22 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_graphVerticalMax->setFont(buttonsFont);
     ui->lineEdit_graphVerticalMin->setFont(buttonsFont);
     ui->lineEdit_nAPerCount->setFont(buttonsFont);
+
+    // bottom label rwell
+    QFont rwellFont;
+    rwellFont.setFamily("Inter");
+    rwellFont.setPixelSize(40);
+    rwellFont.setWeight(50);
+
+    ui->label_textRWELL->setFont(rwellFont);
+    ui->label_textRWELL->setStyleSheet(
+                "color: rgb(50,70,100);"
+                );
+    ui->label_textRWELL->setText("RWELL");
+    ui->label_textRWELL->hide();
+
+    ui->label_iconRWELL->hide();
+
 }
 
 ChamberWindow::~ChamberWindow()
@@ -170,60 +192,67 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
     show();
 }
 
+#include <iostream>
 void ChamberWindow::update()
 {
     // update message from MCU
-    //if(this->id < receiver->GetMessageID()) // real
-    if(1) // emulator
+    if(this->id < receiver->GetMessageID()) // real
+    //if(1) // emulator
     {
-        //id = receiver->GetMessageID();
-        id++;
+        id = receiver->GetMessageID();
+        //id++;
 
            // real
-        /*int cyclesRemained = receiver->GetMeasurementTime();
-        int currDoseRate = receiver->GetADCValue() * getBqPerCount();
-        int averDoseRate = receiver->GetADCAverageValue() * getBqPerCount();
+        int cyclesRemained = receiver->GetMeasurementTime();
+        int currDoseRate = receiver->GetADCValue();
+        int averDoseRate = receiver->GetADCAverageValue();
         int currVoltage = receiver->GetHVOut();
         int currPressure = receiver->GetPressurePa();
         int8_t hvPolarity = receiver->GetHVPolarity();
-        int8_t range = receiver->GetRange(); */
+        int8_t range = receiver->GetRange();
 
             // emulator
-        int cyclesRemained = 33;
+        /*int cyclesRemained = 33;
         int currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
         int averDoseRate = 230444;
         int currVoltage = ui->widget_voltageMenu->getInputVoltage();//->widget_voltage->; // debug !!!! 50
         int currPressure = 1190;
         int8_t hvPolarity = 0;
-        int8_t range = 1;
+        int8_t range = 1; */
 
         ui->widget_activityMenu->setMeasuresCompleted(cyclesRemained);
 
         // curren activity field
         //QString currActivityStr = getSubstringNumber(currDoseRate, 6);
         //ui->widget_currentActivity->setValueText(currActivityStr);
-        ui->widget_currentActivity->setValueText(QString::number(currDoseRate * getBqPerCount() * 1e-6, 'f', 0));
+        ui->widget_currentActivity->setValueText(
+                    QString::number((currDoseRate - this->averageDoseCountSaved)* getBqPerCount() * 1e-6, 'f', 0)
+                    );
 
         // average activity field
         //QString averActivityStr = getSubstringNumber(averDoseRate, 4);
         ui->widget_averageActivity->setValueText(QString::number(averDoseRate * getBqPerCount() * 1e-6, 'f', 0));
 
         // curr voltage minus sigh
-        hvPolarity ?  currVoltage = -currVoltage : 1;
+        //hvPolarity ?  currVoltage = -currVoltage : 1;
         ui->widget_voltage->setValueText(QString::number(currVoltage));
 
         // noise current field
         //QString noiseCurrentStr = getSubstringNumber(this->graph->getNoiseCount() * this->kNanoAmperPerCount, 6);
-        ui->widget_noiseCurrent->setValueText(QString::number(this->graph->getNoiseCount() * this->kNanoAmperPerCount, 'f', 4));
+        ui->widget_noiseCurrent->setValueText(
+                    //QString::number(this->graph->getNoiseCount() * this->kNanoAmperPerCount, 'f', 6)
+                    QString::number(this->averageDoseCountSaved * this->kNanoAmperPerCount, 'f', 6)
+                    );
 
         // curr current field
         //QString currCurrentStr = getSubstringNumber(currDoseRate * this->kNanoAmperPerCount, 6);
-        ui->widget_current->setValueText(QString::number(currDoseRate * this->kNanoAmperPerCount, 'f', 4));
+        ui->widget_current->setValueText(
+                    QString::number((currDoseRate - this->averageDoseCountSaved) * this->kNanoAmperPerCount, 'f', 6)
+                    );
 
         ui->widget_pressure->setValueText(QString::number((currPressure) / 100., 'f', 2) + " / 12.00");
         ui->widget_polarityMenu->setPolarity(hvPolarity);
         ui->widget_sensivityMenu->setSensivity(range);
-
 
         // rescale y-axis
         if(range != this->prevRange)
@@ -236,7 +265,7 @@ void ChamberWindow::update()
         if(this->graph)
         {
             // calc activity
-            this->graph->QGraph::updateCount(currDoseRate);
+            this->graph->QGraph::updateCount(currDoseRate - this->averageDoseCountSaved);
         }
         // file update
         ui->widget_fileMenu->update(id, currDoseRate);
@@ -340,6 +369,10 @@ void ChamberWindow::on_lineEdit_nAPerCount_editingFinished()
 void ChamberWindow::on_pushButton_compensateBG_clicked()
 {
     this->graph->updateNoise();
+    /*if(receiver)
+    {
+        this->averageDoseCountSaved = receiver->GetADCAverageValue();
+    } */
 }
 
 void ChamberWindow::on_pushButton_resetBG_clicked()
@@ -370,7 +403,7 @@ void ChamberWindow::setStartStyle(QPushButton * button)
     button->setIcon(icon);
     button->setIconSize(QSize(iconSize,iconSize));
     button->setFont(buttonsFont);
-    button->setText(" Возобновить");
+    button->setText("Возобновить");
 
     button->setStyleSheet(
                 // unpressed
@@ -391,12 +424,12 @@ void ChamberWindow::setStartStyle(QPushButton * button)
 
 void ChamberWindow::setStopStyle(QPushButton * button)
 {
-    QIcon icon(":/img/button_icon_stop.png");
-    int iconSize = 14;
+    QIcon icon(":/img/button_icon_pause.png");
+    int iconSize = 24;
     button->setIcon(icon);
     button->setIconSize(QSize(iconSize,iconSize));
     button->setFont(buttonsFont);
-    button->setText(" Остановить");
+    button->setText("Остановить");
 
     button->setStyleSheet(
                 // unpressed
@@ -412,6 +445,22 @@ void ChamberWindow::setStopStyle(QPushButton * button)
                 "QPushButton:pressed { background-color: rgb(30,80,170);  }"
                 ); // Start */
     button->setFocusPolicy( Qt::FocusPolicy::NoFocus );
-
 }
 
+void ChamberWindow::on_checkBox_noise_clicked()
+{
+    if(ui->checkBox_noise->checkState())
+    {
+        //std::cout << "check state: " << true << std::endl;
+        if(receiver)
+        {
+            this->averageDoseCountSaved = receiver->GetADCAverageValue();
+
+        }
+    }
+    else
+    {
+        //std::cout << "check state: " << false << std::endl;
+         this->averageDoseCountSaved = 0;
+    }
+}

@@ -97,6 +97,7 @@ void QGraph::show()
     this->QCustomPlot::show();
 }
 
+#include <iostream>
 void QGraph::updateCount(int val)
 {
     if(this->enabled)
@@ -259,13 +260,15 @@ void QGraph::showPointToolTip(QMouseEvent * event)
             if(x < this->tVec.front() || x > this->tVec.back()) { return; }
 
             double x_base = this->tVec[0];
-            double x_delta = this->tVec[1] - this->tVec[0];
+            //double x_delta = this->tVec[1] - this->tVec[0];
+            double x_delta = (this->tVec.back() - this->tVec.front())/this->tVec.size();
 
             int index = static_cast<int>(floor((x - x_base) / x_delta));
+           // int index = static_cast<int>(floor((x - x_base) / x_delta));
 
             if(index < this->yVec.size())
             {
-                double x_show = x_base + index * x_delta;
+                double x_show = this->tVec[index];//x_base + index * x_delta;
                 double y_show = this->yVec[index];
                 setToolTip(QString("%1 с, %2 МБк").arg(x_show).arg(y_show));
             }

@@ -46,6 +46,8 @@ private slots:
     void on_pushButton_compensateBG_clicked();
 
     void on_pushButton_resetBG_clicked();
+    void on_checkBox_noise_clicked();
+
 private:
     double getBqPerCount();
 
@@ -85,6 +87,9 @@ private:
 
     // font
     QFont buttonsFont;
+
+    // average activity
+    int averageDoseCountSaved = 0;
 private:
     void closeEvent(QCloseEvent *event) override;
     void resizeEvent(QResizeEvent *) override;

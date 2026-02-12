@@ -15,16 +15,20 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("RWELL");
-    setFixedSize(500,300);
+    setFixedSize(500,340);
 
     // fonts
     QFont font;
     font.setFamily("Inter");
+    font.setPixelSize(16);
 
     // head icon
     int iconSize = 32;
     ui->label_headIcon->clear();
     ui->label_headIcon->setPixmap(QIcon(":/img/button_icon_settings.png").pixmap(iconSize, iconSize));
+
+    // list font
+    ui->comboBox_TypeSelect->setFont(font);
 
     // line edit fonts
     ui->lineEdit_ip->setFont(font);
@@ -123,7 +127,6 @@ void MainWindow::on_lineEdit_OutputPort_editingFinished()
                 );
 }
 
-
 void MainWindow::on_pushButton_Connect_clicked()
 {
     std::string ip = ui->lineEdit_ip->text().toStdString();
@@ -133,7 +136,7 @@ void MainWindow::on_pushButton_Connect_clicked()
 
     // FOR CHAMBER
     // not emulator!!!
-    /*if(type == "Колодезная камера")
+    if(type == "Колодезная камера")
     {
          chamber_ui->connect(ip, outputPort, inputPort);
          for (int i = 0; i < this->connCntMax; ++i)
@@ -150,13 +153,12 @@ void MainWindow::on_pushButton_Connect_clicked()
              {
                  //chamber_ui->disconnect();
                  QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
-
              }
          }
-    } */
+    }
 
     // emulator!!!!
-    chamber_ui->show();
+    //chamber_ui->show();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
