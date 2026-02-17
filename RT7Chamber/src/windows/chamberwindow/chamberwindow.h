@@ -71,7 +71,7 @@ private:
 
     // MBq per count
     double kBqPerCount_coarse = 13000;
-    double kSense = 100;
+    double kSense = 1;
     double kBqPerCount_fine = kBqPerCount_coarse / kSense;
     double kBqPerCountCurrent = kBqPerCount_coarse;
     int prevRange = 2; // nor 0 not 1
