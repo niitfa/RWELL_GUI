@@ -10,6 +10,7 @@
 #include "MessageReceiver.h"
 #include "MessageTransmitter.h"
 #include "scansessionfile.h"
+#include "averagecalculator.h"
 
 namespace Ui {
 class ChamberWindow;
@@ -41,18 +42,27 @@ private slots:
 
     void on_pushButton_resetScales_clicked();
 
-    void on_lineEdit_nAPerCount_editingFinished();
-
-    void on_pushButton_compensateBG_clicked();
-
-    void on_pushButton_resetBG_clicked();
     void on_checkBox_noise_clicked();
 
-private:
-    double getBqPerCount();
+    void on_pushButton_noiseMeasure_clicked();
 
-    void setStartStyle(QPushButton*);
-    void setStopStyle(QPushButton*);
+    void on_pushButton_noiseReset_clicked();
+
+    void on_lineEdit_BqPerCountLow_editingFinished();
+
+    void on_lineEdit_BqPerCountHigh_editingFinished();
+
+private:
+    void setStartStyle(QPushButton*, QString);
+    void setStopStyle(QPushButton*, QString);
+
+    // buttons texts
+    QString graphButtonStartText; // graph
+    QString graphButtonStopText;
+    QString noiseButtonStartText; // noise
+    QString noiseButtonStopText;
+
+    void noiseUpdate(int noiseCount);
 private:
 
     MessageReceiver* receiver = nullptr;
@@ -70,26 +80,31 @@ private:
     const int maxVoltage = 500;
 
     // MBq per count
-    double kBqPerCount_coarse = 13000;
-    double kSense = 1;
-    double kBqPerCount_fine = kBqPerCount_coarse / kSense;
-    double kBqPerCountCurrent = kBqPerCount_coarse;
-    int prevRange = 2; // nor 0 not 1
-
-    // nA per count
-    double kNanoAmperPerCount = 4e-8;
+    double BqPerCountLow = 13000;
+    double BqPerCountHigh = 130;
+    double BqPerCount = BqPerCountLow;
 
     // write to file
     ScanSessionFile session;
 
+    // average calculator
+    AverageCalculator averageCalulator;
+
     // start graph button state
     bool graphStarted = 1;
+    bool noiseMeasurementStarted = 0;
 
     // font
     QFont buttonsFont;
 
+    uint8_t sensitivity = 0;
+    uint8_t hvPolarity = 0;
+
     // average activity
     int averageDoseCountSaved = 0;
+    int noiseCount_lowSense = 0;
+    int noiseCount_highSense = 0;
+    int noiseCount = 0;
 private:
     void closeEvent(QCloseEvent *event) override;
     void resizeEvent(QResizeEvent *) override;

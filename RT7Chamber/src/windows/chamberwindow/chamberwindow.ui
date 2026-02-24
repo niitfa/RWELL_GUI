@@ -22,7 +22,7 @@
         <widget class="WidgetActivity" name="widget_activityMenu" native="true"/>
        </item>
        <item>
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_activity">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -132,7 +132,7 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0,0">
        <item>
         <spacer name="horizontalSpacer_4">
          <property name="orientation">
@@ -159,13 +159,6 @@
          </property>
          <property name="textFormat">
           <enum>Qt::AutoText</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_iconRWELL">
-         <property name="text">
-          <string>TextLabel</string>
          </property>
         </widget>
        </item>
@@ -402,38 +395,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>k, Бк/ед:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit_nAPerCount">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>100</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="label_16">
            <property name="text">
             <string>t, с:</string>
@@ -513,16 +474,16 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
-          <widget class="QPushButton" name="pushButton_compensateBG">
+          <widget class="QPushButton" name="pushButton_noiseMeasure">
            <property name="minimumSize">
             <size>
-             <width>130</width>
+             <width>170</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>130</width>
+             <width>170</width>
              <height>30</height>
             </size>
            </property>
@@ -530,27 +491,21 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>Измерить фон</string>
+            <string>Изм. шума: старт</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_resetBG">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QPushButton" name="pushButton_noiseReset">
            <property name="minimumSize">
             <size>
-             <width>170</width>
+             <width>140</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>170</width>
+             <width>140</width>
              <height>30</height>
             </size>
            </property>
@@ -558,7 +513,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>Скомпенсировать фон</string>
+            <string>Сбросить шум</string>
            </property>
           </widget>
          </item>
@@ -574,6 +529,80 @@
             <size>
              <width>400</width>
              <height>5</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>k низк., Бк/ед:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_BqPerCountLow">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>100</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>k высок., Бк/ед:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_BqPerCountHigh">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>90</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
             </size>
            </property>
           </spacer>
@@ -610,13 +639,13 @@
               <widget class="WidgetValue" name="widget_pressure" native="true"/>
              </item>
              <item row="0" column="1">
-              <widget class="WidgetValue" name="widget_averageActivity" native="true"/>
+              <widget class="WidgetValue" name="widget_currentActivityWithNoise" native="true"/>
              </item>
              <item row="1" column="0">
-              <widget class="WidgetValue" name="widget_current" native="true"/>
+              <widget class="WidgetValue" name="widget_noiseLowSense" native="true"/>
              </item>
              <item row="1" column="1">
-              <widget class="WidgetValue" name="widget_noiseCurrent" native="true"/>
+              <widget class="WidgetValue" name="widget_noiseHighSense" native="true"/>
              </item>
              <item row="0" column="0">
               <widget class="WidgetValue" name="widget_currentActivity" native="true"/>

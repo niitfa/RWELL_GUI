@@ -21,65 +21,6 @@ QGraph::~QGraph()
     delete ui;
 }
 
-void QGraph::setNanoamperPerCount(double k)
-{
-    this->kNanoamperPerCount = k;
-    this->setYAxisRange(getYMin(), getYMax()); // rescale y axis
-}
-
-double QGraph::getNanoamperPerCount()
-{
-    return this->kNanoamperPerCount;
-}
-
-void QGraph::updateNoise()
-{
-    this->clearGraph();
-
-    double oldNoiseNanoamper = this->noiseNanoamper;
-    double newNoiseNanoamper = 0;
-
-    for(int i = 0; i < this->yVec.size(); i++)
-    {
-        this->yVec[i] = this->yVec[i] + oldNoiseNanoamper;
-    }
-
-    // get raw average
-    for(auto val : this->yVec)
-    {
-        newNoiseNanoamper += val / this->yVec.size();
-    }
-    this->noiseNanoamper = newNoiseNanoamper;
-    this->noiseCount = static_cast<int>(newNoiseNanoamper / this->kNanoamperPerCount);
-
-    // update all vector
-    for(int i = 0; i < this->yVec.size(); i++)
-    {
-        this->yVec[i] = this->yVec[i] - newNoiseNanoamper;
-    }
-}
-
-void QGraph::resetNoise()
-{
-    // clear graph
-    this->clearGraph();
-
-    double oldNoiseNanoamper = this->noiseNanoamper;
-    this->noiseCount = 0;
-    this->noiseNanoamper = 0;
-
-    for(int i = 0; i < this->yVec.size(); i++)
-    {
-        this->yVec[i] = this->yVec[i] + oldNoiseNanoamper;
-    }
-
-}
-
-int QGraph::getNoiseCount()
-{
-    return this->noiseCount;
-}
-
 double QGraph::back()
 {
     if(this->yVec.isEmpty())
@@ -98,7 +39,7 @@ void QGraph::show()
 }
 
 #include <iostream>
-void QGraph::updateCount(int val)
+void QGraph::update(double val)
 {
     if(this->enabled)
     {
@@ -107,8 +48,7 @@ void QGraph::updateCount(int val)
         double secs_elapsed = static_cast<double>(msecs_elapsed) / 1000;
 
         this->updateTimeVector(secs_elapsed);
-        this->yVec.push_back((val - this->noiseCount)* this->kNanoamperPerCount);
-
+        this->yVec.push_back((val));
 
         while(this->isLimitTimeExceeded())
         {
@@ -132,9 +72,7 @@ void QGraph::setYAxisRange(double yMin, double yMax)
 {
     this->yMin = yMin;
     this->yMax = yMax;
-    //this->QCustomPlot::yAxis->setRange(this->yMin * this->kNanoamperPerCount, this->yMax * this->kNanoamperPerCount);
     this->QCustomPlot::yAxis->setRange(this->yMin, this->yMax);
-    //this->QCustomPlot::yAxis2->setRange(this->yMin, this->yMax);
     this->QGraph::replot();
 }
 
