@@ -42,8 +42,6 @@ private slots:
 
     void on_pushButton_resetScales_clicked();
 
-    void on_checkBox_noise_clicked();
-
     void on_pushButton_noiseMeasure_clicked();
 
     void on_pushButton_noiseReset_clicked();
@@ -63,6 +61,7 @@ private:
     QString noiseButtonStopText;
 
     void noiseUpdate(int noiseCount);
+    void logFileUpdate();
 private:
 
     MessageReceiver* receiver = nullptr;
@@ -97,8 +96,15 @@ private:
     // font
     QFont buttonsFont;
 
+    // received data
     uint8_t sensitivity = 0;
     uint8_t hvPolarity = 0;
+    int cyclesRemained = 0;
+    int currDoseRate = 0;
+    int currVoltage = 0; // debug !!!! 50
+    int currPressure = 0;
+    double currentActivity          = 0;
+    double currentActivityWithNoise = 0;
 
     // average activity
     int averageDoseCountSaved = 0;

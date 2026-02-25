@@ -9,7 +9,14 @@
 // 3) ChamberWindow::update(...) emul values
 // 4) ChamberWindow::update(...) id++ emul
 
-// Галочка вычитания фона!!!!
+// todo
+// 1)Галочка вычитания фона!!!!
+// 2)вычитание фона в поле
+
+
+
+// проверить
+// 1) переключение диапазонов, переключение коэффициентов
 
 ChamberWindow::ChamberWindow(QWidget *parent) :
     QDialog(parent),
@@ -67,15 +74,17 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
 
     // noise measurement button
     this->noiseMeasurementStarted = 0;
-    this->noiseButtonStartText = "Изм. шума: старт";
-    this->noiseButtonStopText = "Изм. шума: стоп";
+    this->noiseButtonStartText = "Изм. фона: старт";
+    this->noiseButtonStopText = "Изм. фона: стоп";
     this->setStartStyle(ui->pushButton_noiseMeasure, noiseButtonStartText);
 
+    ui->pushButton_noiseReset->setText("Сбросить фон");
+
     // value widgets
-    ui->widget_currentActivity->setHeadText("Активность (без шума), МБк:");
-    ui->widget_currentActivityWithNoise->setHeadText("Активность (с шумом), МБк:");
-    ui->widget_noiseLowSense->setHeadText("Шум (низкая чувств.), МБк:");
-    ui->widget_noiseHighSense->setHeadText("Шум (высокая чувств.), МБк:");
+    ui->widget_currentActivity->setHeadText("Активность (без фона), МБк:");
+    ui->widget_currentActivityWithNoise->setHeadText("Активность (с фоном), МБк:");
+    ui->widget_noiseLowSense->setHeadText("Фон (низкая чувств.), МБк:");
+    ui->widget_noiseHighSense->setHeadText("Фон (высокая чувств.), МБк:");
     ui->widget_voltage->setHeadText("Напряжение, В:");
     ui->widget_pressure->setHeadText("Давление, атм:");
 
@@ -202,20 +211,20 @@ void ChamberWindow::update()
         id++;
 
            // real
-        /*int cyclesRemained = receiver->GetMeasurementTime();
-        int currDoseRate = receiver->GetADCValue();
-        int averDoseRate = receiver->GetADCAverageValue();
-        int currVoltage = receiver->GetHVOut();
-        int currPressure = receiver->GetPressurePa();
+        /*this->cyclesRemained = receiver->GetMeasurementTime();
+        this->currDoseRate = receiver->GetADCValue();
+        this->averDoseRate = receiver->GetADCAverageValue();
+        this->currVoltage = receiver->GetHVOut();
+        this->currPressure = receiver->GetPressurePa();
         this->hvPolarity = receiver->GetHVPolarity();
         this->sensitivity = receiver->GetRange(); */
 
             // emulator
-        int cyclesRemained = 33;
-        //int currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
-        int currDoseRate = 1000000 + (rand() % 150000);
-        int currVoltage = ui->widget_voltageMenu->getInputVoltage(); // debug !!!! 50
-        int currPressure = 1190;
+        this->cyclesRemained = 33;
+        //this->currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
+        this->currDoseRate = 7900000 + (rand() % 200000);
+        this->currVoltage = ui->widget_voltageMenu->getInputVoltage(); // debug !!!! 50
+        this->currPressure = 1190;
         this->hvPolarity = 0;
         this->sensitivity = 1;
 
@@ -223,10 +232,9 @@ void ChamberWindow::update()
         this->noiseUpdate(currDoseRate);
         this->noiseCount = this->sensitivity ? this->noiseCount_highSense : this->noiseCount_lowSense;
         this->BqPerCount = this->sensitivity ? this->BqPerCountHigh : this->BqPerCountLow;
-
         // widget values
-        double currentActivity          = (currDoseRate) * this->BqPerCount * 1e-6;
-        double currentActivityWithNoise = (currDoseRate) * this->BqPerCount * 1e-6;
+        this->currentActivity          = (currDoseRate - this->noiseCount) * this->BqPerCount * 1e-6;
+        this->currentActivityWithNoise = (currDoseRate) * this->BqPerCount * 1e-6;
 
         ui->widget_activityMenu->setMeasuresCompleted(cyclesRemained);
         ui->widget_currentActivity->setValueText(QString::number(currentActivity, 'f', 0));
@@ -242,22 +250,17 @@ void ChamberWindow::update()
         ui->widget_polarityMenu->setPolarity(hvPolarity);
         ui->widget_sensivityMenu->setSensivity(sensitivity);
 
-        // rescale y-axis
-        /*if(range != this->prevRange)
-        {
-            // range changed
-           //this->graph->setNanoamperPerCount(this->getBqPerCount() * 1e-6); // MBq per count!!
-           this->prevRange = range;
-        } */
-
         // graph update
         if(this->graph)
         {
             // calc activity
-            this->graph->QGraph::update((currDoseRate - this->averageDoseCountSaved) * this->BqPerCount * 1e-6);
+            this->graph->QGraph::update(
+                        //(currDoseRate - this->averageDoseCountSaved) * this->BqPerCount * 1e-6
+                        (currDoseRate - this->noiseCount * ( ui->checkBox_noise->checkState() == Qt::CheckState::Checked )) * this->BqPerCount * 1e-6
+                        );
         }
         // file update
-        ui->widget_fileMenu->update(id, currDoseRate);
+        logFileUpdate();
     }
 
     // update switch voltage button state
@@ -409,21 +412,20 @@ void ChamberWindow::noiseUpdate(int noiseCount)
     }
 }
 
-void ChamberWindow::on_checkBox_noise_clicked()
+void ChamberWindow::logFileUpdate()
 {
-    // влияет только на график!!!!
-    if(ui->checkBox_noise->checkState())
-    {
-        if(receiver)
-        {
-            this->averageDoseCountSaved = receiver->GetADCAverageValue();
-
-        }
-    }
-    else
-    {
-         this->averageDoseCountSaved = 0;
-    }
+    auto session = ui->widget_fileMenu->getSession();
+    session->setID(this->id);
+    session->setNoiseMBq(this->noiseCount * this->BqPerCount * 1e-6);
+    session->setBqPerCount(this->BqPerCount);
+    session->setRawActivityCount(this->currDoseRate);
+    session->setRawActivityMBq(this->currentActivityWithNoise);
+    session->setNoiselessActivityMBq(this->currentActivity);
+    session->setSensitivity(this->sensitivity);
+    session->setVoltagePolarity(this->hvPolarity);
+    session->setVoltage(this->currVoltage);
+    session->setPressure(this->currPressure / 100.);
+    ui->widget_fileMenu->update(this->id);
 }
 
 void ChamberWindow::on_pushButton_noiseMeasure_clicked()
