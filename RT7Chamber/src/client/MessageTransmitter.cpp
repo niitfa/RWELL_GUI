@@ -49,14 +49,13 @@ bool MessageTransmitter::Connect(std::string ip, uint16_t port)
     QHostAddress addr( QString::fromStdString(this->ip) );
     addr.toIPv4Address();
 
-    /* QTcpSocket */
     bool opened = this->qSocket->open(QIODevice::ReadWrite);
-    std::cout << "MessageTransmitter::opened = " << opened << std::endl;
+    //std::cout << "MessageTransmitter::opened = " << opened << std::endl;
     this->qSocket->connectToHost(addr, this->port, QIODevice::ReadWrite);
     this->connected = this->qSocket->waitForConnected(1000);
-    std::cout << "MessageTransmitter::connected = " << connected << std::endl;
+    //std::cout << "MessageTransmitter::connected = " << connected << std::endl;
     std::string err =( this->qSocket->errorString() ).toStdString();
-    std::cout << "MessageTransmitter::error = " << err << std::endl;
+    //std::cout << "MessageTransmitter::error = " << err << std::endl;
     return connected;
 }
 

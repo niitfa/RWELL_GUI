@@ -16,7 +16,6 @@
 class MessageTransmitter
 {
     static const int64_t kMessageSize = 8;
-
     static const int64_t kBytePositionValue1 = 0;
     static const int64_t kBytePositionValue2 = 4;
 

@@ -9,11 +9,6 @@
 // 3) ChamberWindow::update(...) emul values
 // 4) ChamberWindow::update(...) id++ emul
 
-// todo
-// 1)Галочка вычитания фона!!!!
-// 2)вычитание фона в поле
-
-
 
 // проверить
 // 1) переключение диапазонов, переключение коэффициентов
@@ -26,7 +21,7 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     this->setWindowTitle("RWELL");
 
     //init timer
-    int interval = 50; // was 10
+    int interval = 10; // was 10
 
     timer = new QTimer( this );
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -122,10 +117,6 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
 
     double k = 0.18;
     ui->label_textRWELL->setPixmap(QIcon(":/img/icon_rwell.png").pixmap(QSize(1178 * k, 163 * k)));
-    //ui->label_textRWELL->hide();
-
-    //ui->label_iconRWELL->hide();
-
 }
 
 ChamberWindow::~ChamberWindow()
@@ -204,29 +195,29 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
 void ChamberWindow::update()
 {
     // update message from MCU
-    //if(this->id < receiver->GetMessageID()) // real
-    if(1) // emulator
+    if(this->id < receiver->GetMessageID()) // real
+    //if(1) // emulator
     {
-        //id = receiver->GetMessageID();
-        id++;
+        id = receiver->GetMessageID();
+        //id++;
 
            // real
-        /*this->cyclesRemained = receiver->GetMeasurementTime();
+        this->cyclesRemained = receiver->GetMeasurementTime();
         this->currDoseRate = receiver->GetADCValue();
-        this->averDoseRate = receiver->GetADCAverageValue();
+        //this->averDoseRate = receiver->GetADCAverageValue();
         this->currVoltage = receiver->GetHVOut();
         this->currPressure = receiver->GetPressurePa();
         this->hvPolarity = receiver->GetHVPolarity();
-        this->sensitivity = receiver->GetRange(); */
+        this->sensitivity = receiver->GetRange();
 
             // emulator
-        this->cyclesRemained = 33;
+        /*this->cyclesRemained = 33;
         //this->currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
         this->currDoseRate = 7900000 + (rand() % 200000);
         this->currVoltage = ui->widget_voltageMenu->getInputVoltage(); // debug !!!! 50
         this->currPressure = 1190;
         this->hvPolarity = 0;
-        this->sensitivity = 1;
+        this->sensitivity = 1;*/
 
         // noise update
         this->noiseUpdate(currDoseRate);

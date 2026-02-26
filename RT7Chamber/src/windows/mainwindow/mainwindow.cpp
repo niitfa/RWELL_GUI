@@ -136,7 +136,7 @@ void MainWindow::on_pushButton_Connect_clicked()
 
     // FOR CHAMBER
     // not emulator!!!
-    /*if(type == "Колодезная камера")
+    if(type == "Колодезная камера")
     {
          chamber_ui->connect(ip, outputPort, inputPort);
          for (int i = 0; i < this->connCntMax; ++i)
@@ -155,10 +155,10 @@ void MainWindow::on_pushButton_Connect_clicked()
                  QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
              }
          }
-    } */
+    }
 
     // emulator!!!!
-    chamber_ui->show();
+    //chamber_ui->show();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

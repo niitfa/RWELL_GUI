@@ -97,8 +97,8 @@ private:
     QFont buttonsFont;
 
     // received data
-    uint8_t sensitivity = 0;
-    uint8_t hvPolarity = 0;
+    int8_t sensitivity = 0;
+    int8_t hvPolarity = 0;
     int cyclesRemained = 0;
     int currDoseRate = 0;
     int currVoltage = 0; // debug !!!! 50
