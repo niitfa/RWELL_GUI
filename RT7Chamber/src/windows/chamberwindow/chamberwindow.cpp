@@ -204,7 +204,6 @@ void ChamberWindow::update()
            // real
         this->cyclesRemained = receiver->GetMeasurementTime();
         this->currDoseRate = receiver->GetADCValue();
-        //this->averDoseRate = receiver->GetADCAverageValue();
         this->currVoltage = receiver->GetHVOut();
         this->currPressure = receiver->GetPressurePa();
         this->hvPolarity = receiver->GetHVPolarity();
@@ -217,7 +216,7 @@ void ChamberWindow::update()
         this->currVoltage = ui->widget_voltageMenu->getInputVoltage(); // debug !!!! 50
         this->currPressure = 1190;
         this->hvPolarity = 0;
-        this->sensitivity = 1;*/
+        this->sensitivity = 1; */
 
         // noise update
         this->noiseUpdate(currDoseRate);

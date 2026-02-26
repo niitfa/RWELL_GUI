@@ -166,9 +166,10 @@ void ScanSessionFile::printHeadText(QFile* f)
     QTextStream stream(f);
     stream << "Date," <<  getDateStringFile() << endl;
     stream << "Time," <<  getTimeStringFile() << endl;
+    stream << "k (Bq/count)," <<  QString::number(BqPerCount) << endl;
     stream << "Background (MBq)," <<  QString::number(noiseMBq) << endl;
     stream << "Voltage (V)," <<  QString::number(voltage) << endl;
-    stream << "Polarity," <<  (voltagePolarity ? "+" : "-") << endl;
+    stream << "Polarity," <<  (voltagePolarity ? "-" : "+") << endl;
     stream << "Sensitivity," <<  (sensitivity ? "low" : "high") << endl;
     stream << endl;
 
@@ -182,6 +183,7 @@ void ScanSessionFile::printValuesDescription(QFile *f)
             "Date," <<
             "ID," <<
             "Activity (count)," <<
+            "k (Bq/count)," <<
             "Activity (MBq)," <<
             "Activity no BG (MBq)," <<
             "Voltage (V)," <<
@@ -199,11 +201,12 @@ void ScanSessionFile::printReqularData(QFile *f)
               getDateStringFile() << "," <<
               QString::number(id) << "," <<
               QString::number(rawActivityCount) << "," <<
+              QString::number(BqPerCount) << "," <<
               QString::number(rawActivityMBq, 'f', 2) << "," <<
               QString::number(noiselessActivityMBq, 'f', 2) << "," <<
               QString::number(voltage) << "," <<
               QString::number(pressureAt, 'f', 2) << "," <<
-              (voltagePolarity ? "+" : "-") << "," <<
+              (voltagePolarity ? "-" : "+") << "," <<
               (sensitivity ? "low" : "high") << endl;
 }
 
