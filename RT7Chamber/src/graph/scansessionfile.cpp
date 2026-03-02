@@ -170,7 +170,7 @@ void ScanSessionFile::printHeadText(QFile* f)
     stream << "Background (MBq)," <<  QString::number(noiseMBq) << endl;
     stream << "Voltage (V)," <<  QString::number(voltage) << endl;
     stream << "Polarity," <<  (voltagePolarity ? "-" : "+") << endl;
-    stream << "Sensitivity," <<  (sensitivity ? "low" : "high") << endl;
+    stream << "Sensitivity," <<  (sensitivity ? "high" : "low") << endl;
     stream << endl;
 
 }
@@ -207,7 +207,7 @@ void ScanSessionFile::printReqularData(QFile *f)
               QString::number(voltage) << "," <<
               QString::number(pressureAt, 'f', 2) << "," <<
               (voltagePolarity ? "-" : "+") << "," <<
-              (sensitivity ? "low" : "high") << endl;
+              (sensitivity ? "high" : "low") << endl;
 }
 
 QString ScanSessionFile::getTimeStringFile()
