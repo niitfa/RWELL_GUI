@@ -102,10 +102,9 @@ WidgetVoltage::~WidgetVoltage()
     delete ui;
 }
 
-void WidgetVoltage::registerConnectors(MessageReceiver *receiver, MessageTransmitter *transmitter)
+void WidgetVoltage::setClient(RWELLClient *cli)
 {
-    this->receiver = receiver;
-    this->transmitter = transmitter;
+    this->client = cli;
 }
 
 int WidgetVoltage::getInputVoltage()
@@ -117,7 +116,7 @@ void WidgetVoltage::on_pushButton_changeVoltage_clicked()
 {
     int maxVoltage = 500;
     int targetVoltage = ui->lineEdit_voltageInput->text().toInt();
-    if(this->transmitter)
+    if(this->client)
     {
         if(targetVoltage < 0 || targetVoltage > maxVoltage) // check range
         {
@@ -130,7 +129,7 @@ void WidgetVoltage::on_pushButton_changeVoltage_clicked()
         else
         {
             // good value
-            this->transmitter->setVoltageValue(static_cast<uint16_t>(targetVoltage));
+            this->client->setHV(static_cast<uint16_t>(targetVoltage));
         }
     }
 }

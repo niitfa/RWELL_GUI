@@ -33,8 +33,7 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     greyPalette.setColor(QPalette::Base, QColor(235, 235, 235));
 
     // MCU connection
-    this->receiver = new MessageReceiver();
-    this->transmitter = new MessageTransmitter();
+    this->client = new RWELLClient("127.0.0.1", 22250);
 
     // Init graph
     this->graph = new QGraph(ui->widget_graph);
@@ -49,15 +48,15 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_BqPerCountHigh->setText(QString::number(this->BqPerCountHigh)); //  MBq per count!!!
 
     // voltage menu widget
-    ui->widget_voltageMenu->registerConnectors(this->receiver, this->transmitter);
+    ui->widget_voltageMenu->setClient(client);
     // activity menu widget
     ui->widget_activityMenu->hide(); // hide widget
     ui->verticalSpacer_activity->changeSize(0,0); // hide widget
-    ui->widget_activityMenu->registerConnectors(this->receiver, this->transmitter);
+    ui->widget_activityMenu->setClient(client);
     // polarity menu widget
-    ui->widget_polarityMenu->registerConnectors(this->receiver, this->transmitter);
+    ui->widget_polarityMenu->setClient(client);
     // sensivity menu widget
-    ui->widget_sensivityMenu->registerConnectors(this->receiver, this->transmitter);
+    ui->widget_sensivityMenu->setClient(client);
     // save to file widget
     ui->widget_fileMenu->setSession(&this->session);
 
@@ -122,49 +121,37 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
 ChamberWindow::~ChamberWindow()
 {
     delete ui;
-    delete receiver;
-    delete transmitter;
+    delete client;
     delete graph;
 }
 
-void ChamberWindow::connect(std::string ip, uint16_t outputPort, uint16_t inputPort)
+void ChamberWindow::connect(std::string ip, uint16_t port)
 {
-    if(this->receiver)
+    if(this->client)
     {
-        receiver->Connect(ip, outputPort);
-    }
-    if(this->transmitter)
-    {
-        transmitter->Connect(ip, inputPort);
+        client->setIP(ip);
+        client->setPort(port);
+        client->setVerbose(1);
+        client->start();
     }
 }
 
 void ChamberWindow::disconnect()
 {
-    if(this->receiver)
+    if(this->client)
     {
-        receiver->Disconnect();
-    }
-    if(this->transmitter)
-    {
-        transmitter->Disconnect();
+        client->stop();
     }
 }
 
 bool ChamberWindow::isConnected()
 {
-    bool receverConnected = true;
-    bool transmitterConnected = true;
-    if(this->receiver)
+    bool connected = false;
+    if(this->client)
     {
-        receverConnected = receiver->IsConnected();
+        connected = client->isConnected();
     }
-    if(this->transmitter)
-    {
-        transmitterConnected = transmitter->IsConnected();
-    }
-
-    return (receverConnected && transmitterConnected);
+    return connected;
 }
 
 void ChamberWindow::show()
@@ -195,19 +182,19 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
 void ChamberWindow::update()
 {
     // update message from MCU
-    if(this->id < receiver->GetMessageID()) // real
+    if(this->id < client->getMessageNum()) // real
     //if(1) // emulator
     {
-        id = receiver->GetMessageID();
+        id = client->getMessageNum();
         //id++;
 
            // real
-        this->cyclesRemained = receiver->GetMeasurementTime();
-        this->currDoseRate = receiver->GetADCValue();
-        this->currVoltage = receiver->GetHVOut();
-        this->currPressure = receiver->GetPressurePa();
-        this->hvPolarity = receiver->GetHVPolarity();
-        this->sensitivity = receiver->GetRange();
+        this->cyclesRemained = 0;
+        this->currDoseRate = client->getADCValue();
+        this->currVoltage = client->getHV();
+        this->currPressure = client->getPressure();
+        this->hvPolarity = 0;
+        this->sensitivity = client->getBand();
 
             // emulator
         /*this->cyclesRemained = 33;
@@ -255,7 +242,7 @@ void ChamberWindow::update()
 
     // update switch voltage button state
     const int switchVoltageLimit = static_cast<int>(this->maxVoltage * 0.05);
-    ui->widget_polarityMenu->enableWidget( qAbs(receiver->GetHVOut()) <  (switchVoltageLimit) );
+    ui->widget_polarityMenu->enableWidget( qAbs(client->getHV()) <  (switchVoltageLimit) );
 }
 
 void ChamberWindow::on_pushButton_startGraph_clicked()

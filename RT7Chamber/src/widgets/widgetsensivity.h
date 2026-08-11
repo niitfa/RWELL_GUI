@@ -4,8 +4,7 @@
 #include <QWidget>
 #include <QFont>
 #include <QPushButton>
-#include "MessageReceiver.h"
-#include "MessageTransmitter.h"
+#include "rwell_client.h"
 
 namespace Ui {
 class WidgetSensivity;
@@ -18,7 +17,7 @@ class WidgetSensivity : public QWidget
 public:
     explicit WidgetSensivity(QWidget *parent = nullptr);
     ~WidgetSensivity();
-    void registerConnectors(MessageReceiver*, MessageTransmitter*);
+    void setClient(RWELLClient*);
     void setSensivity(uint8_t);
 private slots:
     void on_pushButton_sensivityLow_clicked();
@@ -37,8 +36,7 @@ private:
     Ui::WidgetSensivity *ui;
     QFont buttonsFont;
     uint8_t lastSensivity = 1; // 0 - low, 1 - high
-    MessageReceiver* receiver = nullptr;
-    MessageTransmitter* transmitter = nullptr;
+    RWELLClient* client = nullptr;
 };
 
 #endif // WIDGETSENSIVITY_H

@@ -7,10 +7,10 @@
 #include <QFont>
 #include <QString>
 #include "qgraph.h"
-#include "MessageReceiver.h"
-#include "MessageTransmitter.h"
 #include "scansessionfile.h"
 #include "averagecalculator.h"
+
+#include "rwell_client.h"
 
 namespace Ui {
 class ChamberWindow;
@@ -24,7 +24,7 @@ public:
     explicit ChamberWindow(QWidget *parent = nullptr);
     ~ChamberWindow() override;
 
-    void connect(std::string ip, uint16_t outputPort, uint16_t inputPort);
+    void connect(std::string ip, uint16_t port);
     void disconnect();
     bool isConnected();
     void show();
@@ -64,8 +64,7 @@ private:
     void logFileUpdate();
 private:
 
-    MessageReceiver* receiver = nullptr;
-    MessageTransmitter* transmitter = nullptr;
+    RWELLClient* client = nullptr;
     Ui::ChamberWindow *ui;
     QTimer* timer = nullptr;
 

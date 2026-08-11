@@ -73,10 +73,9 @@ WidgetSensivity::~WidgetSensivity()
     delete ui;
 }
 
-void WidgetSensivity::registerConnectors(MessageReceiver * receiver, MessageTransmitter * transmitter)
+void WidgetSensivity::setClient(RWELLClient* cli)
 {
-    this->receiver = receiver;
-    this->transmitter = transmitter;
+    this->client = cli;
 }
 
 void WidgetSensivity::setSensivity(uint8_t sensivity)
@@ -168,18 +167,16 @@ void WidgetSensivity::setHighButtonDisabled()
 
 void WidgetSensivity::on_pushButton_sensivityLow_clicked()
 {
-    if(transmitter)
+    if(client)
     {
-        transmitter->setBroadRange();
-        //setSensivity(0); // debug!!!!
+        client->setBand(2);
     }
 }
 
 void WidgetSensivity::on_pushButton_sensivityHigh_clicked()
 {
-    if(transmitter)
+    if(client)
     {
-        transmitter->setNarrowRange();
-        //setSensivity(1); // debug!!!!
+        client->setBand(1);
     }
 }

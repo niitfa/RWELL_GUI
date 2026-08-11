@@ -126,10 +126,9 @@ void WidgetActivity::setMeasuresCompleted(int val)
     ui->label_measuresNum->setText(QString::number(val));
 }
 
-void WidgetActivity::registerConnectors(MessageReceiver *receiver, MessageTransmitter *transmitter)
+void WidgetActivity::setClient(RWELLClient* cli)
 {
-    this->receiver = receiver;
-    this->transmitter = transmitter;
+    this->client = cli;
 }
 
 void WidgetActivity::drawStartStateButton()
@@ -169,17 +168,16 @@ void WidgetActivity::drawCurrentStartButtonState()
 void WidgetActivity::on_pushButton_startMeasurement_clicked()
 {
     // start meas
-    if(this->transmitter)
+    if(this->client)
     {
         int cycles = ui->lineEdit_measuresTask->text().toInt();
-        transmitter->startMeasurement(cycles);
+        //transmitter->startMeasurement(cycles);
     }
 }
 
 void WidgetActivity::on_pushButton_resetMeasurement_clicked()
 {
-    if(this->transmitter)
+    if(this->client)
     {
-        transmitter->resetMeasurement();
     }
 }

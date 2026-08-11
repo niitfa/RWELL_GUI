@@ -71,10 +71,9 @@ WidgetPolarity::~WidgetPolarity()
     delete ui;
 }
 
-void WidgetPolarity::registerConnectors(MessageReceiver* receiver, MessageTransmitter* transmitter)
+void WidgetPolarity::setClient(RWELLClient *cli)
 {
-    this->receiver = receiver;
-    this->transmitter = transmitter;
+    this->client = cli;
 }
 
 void WidgetPolarity::setEnabledStyle(QPushButton * button)
@@ -175,18 +174,18 @@ void WidgetPolarity::setMinusButtonDisabled()
 
 void WidgetPolarity::on_pushButton_plus_clicked()
 {
-    if(transmitter)
+    if(client)
     {
-        transmitter->setPositiveVoltage();
+        //transmitter->setPositiveVoltage();
         //setPolarity(0); // debug!!!!
     }
 }
 
 void WidgetPolarity::on_pushButton_minus_clicked()
 {
-    if(transmitter)
+    if(client)
     {
-        transmitter->setNegativeVoltage();
+        //transmitter->setNegativeVoltage();
         //setPolarity(1); // debug!!!!
     }
 }

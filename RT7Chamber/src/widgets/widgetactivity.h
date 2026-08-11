@@ -3,8 +3,7 @@
 
 #include <QWidget>
 #include <QFont>
-#include "MessageReceiver.h"
-#include "MessageTransmitter.h"
+#include "rwell_client.h"
 
 namespace Ui {
 class WidgetActivity;
@@ -17,7 +16,7 @@ class WidgetActivity : public QWidget
 public:
     explicit WidgetActivity(QWidget *parent = nullptr);
     ~WidgetActivity();
-    void registerConnectors(MessageReceiver*, MessageTransmitter*);
+    void setClient(RWELLClient*);
 
     void setMeasuresCompleted(int);
 
@@ -33,8 +32,7 @@ private:
 private:
     bool buttonInStartState = 1;
     QFont buttonsFont;
-    MessageReceiver* receiver = nullptr;
-    MessageTransmitter* transmitter = nullptr;
+    RWELLClient* client = nullptr;
 };
 
 #endif // WIDGETACTIVITY_H

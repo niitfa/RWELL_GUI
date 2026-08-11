@@ -3,9 +3,7 @@
 
 #include <QWidget>
 #include <QFont>
-#include "MessageReceiver.h"
-#include "MessageTransmitter.h"
-
+#include "rwell_client.h"
 
 namespace Ui {
 class WidgetVoltage;
@@ -18,7 +16,7 @@ class WidgetVoltage : public QWidget
 public:
     explicit WidgetVoltage(QWidget *parent = nullptr);
     ~WidgetVoltage();
-    void registerConnectors(MessageReceiver*, MessageTransmitter*);
+    void setClient(RWELLClient*);
     int getInputVoltage();
 private slots:
     void on_pushButton_changeVoltage_clicked();
@@ -26,8 +24,7 @@ private slots:
 private:
     Ui::WidgetVoltage *ui;
     QFont buttonsFont;
-    MessageReceiver* receiver = nullptr;
-    MessageTransmitter* transmitter = nullptr;
+    RWELLClient* client = nullptr;
 };
 
 #endif // WIDGETVOLTAGE_H

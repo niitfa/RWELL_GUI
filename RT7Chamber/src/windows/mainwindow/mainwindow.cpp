@@ -6,9 +6,6 @@
 #include <string>
 #include <iostream>
 
-// 1 edit void MainWindow::on_pushButton_Connect_clicked() - emul
-// 2 edit MainWindow::on_pushButton_Connect_clicked() ip string parsing
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -32,8 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // line edit fonts
     ui->lineEdit_ip->setFont(font);
-    ui->lineEdit_InputPort->setFont(font);
-    ui->lineEdit_OutputPort->setFont(font);
+    ui->lineEdit_port->setFont(font);
 
     // head text
     ui->label_headText->clear();
@@ -66,18 +62,11 @@ MainWindow::MainWindow(QWidget *parent) :
                 ); // IP-адрес
      ui->label_ip->setFont(font);
 
-
-    ui->label_inputPort->setStyleSheet(
-                "border-width:0px;" +
-                textColor
-                ); // Входящий порт
-    ui->label_inputPort->setFont(font);
-
-    ui->label_outputPort->setStyleSheet(
+    ui->label_port->setStyleSheet(
                 "border-width:0px;" +
                 textColor
                 ); // Исходящий порт
-    ui->label_outputPort->setFont(font);
+    ui->label_port->setFont(font);
 
     // button style
     ui->pushButton_Connect->setStyleSheet(
@@ -103,8 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // default connection values
     ui->lineEdit_ip->setText(default_ip);
-    ui->lineEdit_InputPort->setText(QString::number(default_inputPort));
-    ui->lineEdit_OutputPort->setText(QString::number(default_outputPort));
+    ui->lineEdit_port->setText(QString::number(default_port));
 }
 
 MainWindow::~MainWindow()
@@ -113,35 +101,20 @@ MainWindow::~MainWindow()
     delete chamber_ui;
 }
 
-void MainWindow::on_lineEdit_InputPort_editingFinished()
-{
-    ui->lineEdit_InputPort->setText(
-                StringValidator::ValidatePort(ui->lineEdit_InputPort->text())
-                );
-}
-
-void MainWindow::on_lineEdit_OutputPort_editingFinished()
-{
-    ui->lineEdit_OutputPort->setText(
-                StringValidator::ValidatePort(ui->lineEdit_OutputPort->text())
-                );
-}
-
 void MainWindow::on_pushButton_Connect_clicked()
 {
     std::string ip = ui->lineEdit_ip->text().toStdString();
-    uint16_t inputPort = static_cast<uint16_t>(ui->lineEdit_InputPort->text().toInt());
-    uint16_t outputPort = static_cast<uint16_t>(ui->lineEdit_OutputPort->text().toInt());
+    uint16_t port = static_cast<uint16_t>(ui->lineEdit_port->text().toInt());
     QString type = ui->comboBox_TypeSelect->currentText();
 
     // FOR CHAMBER
     // not emulator!!!
     if(type == "Колодезная камера")
     {
-         chamber_ui->connect(ip, outputPort, inputPort);
+         chamber_ui->connect(ip, port);
          for (int i = 0; i < this->connCntMax; ++i)
          {
-             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+             std::this_thread::sleep_for(std::chrono::milliseconds(20));
              if(chamber_ui->isConnected())
              {
                  chamber_ui->show();
@@ -174,4 +147,11 @@ void MainWindow::on_lineEdit_ip_editingFinished()
     {
         ui->lineEdit_ip->setText(default_ip);
     }
+}
+
+void MainWindow::on_lineEdit_port_editingFinished()
+{
+    ui->lineEdit_port->setText(
+                StringValidator::ValidatePort(ui->lineEdit_port->text())
+                );
 }
