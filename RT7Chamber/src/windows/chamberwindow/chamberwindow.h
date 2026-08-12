@@ -50,6 +50,8 @@ private slots:
 
     void on_lineEdit_BqPerCountHigh_editingFinished();
 
+    void on_lineEdit_BqPerCountMedium_editingFinished();
+
 private:
     void setStartStyle(QPushButton*, QString);
     void setStopStyle(QPushButton*, QString);
@@ -79,6 +81,7 @@ private:
 
     // MBq per count
     double BqPerCountLow = 13000;
+    double BqPerCountMedium = 1300;
     double BqPerCountHigh = 130;
     double BqPerCount = BqPerCountLow;
 
@@ -102,12 +105,14 @@ private:
     int currDoseRate = 0;
     int currVoltage = 0; // debug !!!! 50
     int currPressure = 0;
+    int currTemperature = 0;
     double currentActivity          = 0;
     double currentActivityWithNoise = 0;
 
     // average activity
     int averageDoseCountSaved = 0;
     int noiseCount_lowSense = 0;
+    int noiseCount_mediumSense = 0;
     int noiseCount_highSense = 0;
     int noiseCount = 0;
 private:

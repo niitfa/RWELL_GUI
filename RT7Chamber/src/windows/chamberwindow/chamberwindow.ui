@@ -15,7 +15,7 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_leftWidgets" stretch="0,0,0,0,0,0,0">
+    <layout class="QVBoxLayout" name="verticalLayout_leftWidgets" stretch="0,0,0,0,0,0,0,0">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_activity" stretch="1,0">
        <item>
@@ -68,7 +68,7 @@
         <widget class="WidgetPolarity" name="widget_polarityMenu" native="true"/>
        </item>
        <item>
-        <spacer name="verticalSpacer_3">
+        <spacer name="verticalSpacer_polarity">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -130,6 +130,19 @@
         </spacer>
        </item>
       </layout>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1,0,0">
@@ -566,6 +579,29 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>k средн., Бк/ед:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_BqPerCountMedium">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>k высок., Бк/ед:</string>
@@ -635,23 +671,29 @@
           <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0">
            <item>
             <layout class="QGridLayout" name="gridLayout">
-             <item row="1" column="2">
-              <widget class="WidgetValue" name="widget_pressure" native="true"/>
-             </item>
              <item row="0" column="1">
+              <widget class="WidgetValue" name="widget_currentActivity" native="true"/>
+             </item>
+             <item row="0" column="2">
               <widget class="WidgetValue" name="widget_currentActivityWithNoise" native="true"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="WidgetValue" name="widget_noiseHighSense" native="true"/>
              </item>
              <item row="1" column="0">
               <widget class="WidgetValue" name="widget_noiseLowSense" native="true"/>
              </item>
              <item row="1" column="1">
-              <widget class="WidgetValue" name="widget_noiseHighSense" native="true"/>
+              <widget class="WidgetValue" name="widget_noiseMediumSense" native="true"/>
+             </item>
+             <item row="0" column="4">
+              <widget class="WidgetValue" name="widget_temperature" native="true"/>
              </item>
              <item row="0" column="0">
-              <widget class="WidgetValue" name="widget_currentActivity" native="true"/>
-             </item>
-             <item row="0" column="2">
               <widget class="WidgetValue" name="widget_voltage" native="true"/>
+             </item>
+             <item row="1" column="4">
+              <widget class="WidgetValue" name="widget_pressure" native="true"/>
              </item>
             </layout>
            </item>

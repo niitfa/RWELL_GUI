@@ -21,8 +21,9 @@ public:
     void setSensivity(uint8_t);
 private slots:
     void on_pushButton_sensivityLow_clicked();
-
     void on_pushButton_sensivityHigh_clicked();
+
+    void on_pushButton_sensivityMedium_clicked();
 
 private:
     void setEnabledStyle(QPushButton*);
@@ -30,6 +31,8 @@ private:
 
     void setLowButtonEnabled();
     void setLowButtonDisabled();
+    void setMediumButtonEnabled();
+    void setMediumButtonDisabled();
     void setHighButtonEnabled();
     void setHighButtonDisabled();
 private:

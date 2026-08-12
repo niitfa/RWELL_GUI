@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 "border-width:0px;" +
                 textColor
                 ); // IP-адрес
-     ui->label_ip->setFont(font);
+    ui->label_ip->setFont(font);
 
     ui->label_port->setStyleSheet(
                 "border-width:0px;" +
@@ -124,7 +124,7 @@ void MainWindow::on_pushButton_Connect_clicked()
              // last iteration
              if(i == this->connCntMax - 1)
              {
-                 //chamber_ui->disconnect();
+                 chamber_ui->disconnect();
                  QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
              }
          }

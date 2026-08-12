@@ -62,6 +62,8 @@ WidgetSensivity::WidgetSensivity(QWidget *parent) :
 
     ui->pushButton_sensivityLow->setFont(buttonsFont);
     ui->pushButton_sensivityLow->setText("Низкая");
+    ui->pushButton_sensivityMedium->setFont(buttonsFont);
+    ui->pushButton_sensivityMedium->setText("Cредняя");
     ui->pushButton_sensivityHigh->setFont(buttonsFont);
     ui->pushButton_sensivityHigh->setText("Высокая");
 
@@ -82,16 +84,23 @@ void WidgetSensivity::setSensivity(uint8_t sensivity)
 {
     if((sensivity != this->lastSensivity))
     {
-        if(sensivity)
+        if(sensivity == 0) // high
         {
             this->setHighButtonDisabled();
+            this->setMediumButtonEnabled();
             this->setLowButtonEnabled();
         }
-        else
+        else if(sensivity == 1) // medium
         {
-            this->setLowButtonDisabled();
             this->setHighButtonEnabled();
-
+            this->setMediumButtonDisabled();
+            this->setLowButtonEnabled();
+        }
+        else if(sensivity == 2) // low
+        {
+            this->setHighButtonEnabled();
+            this->setMediumButtonEnabled();
+            this->setLowButtonDisabled();
         }
         this->lastSensivity = sensivity;
     }
@@ -149,6 +158,22 @@ void WidgetSensivity::setLowButtonDisabled()
     this->setDisabledStyle(button);
 }
 
+void WidgetSensivity::setMediumButtonEnabled()
+{
+    QPushButton* button = ui->pushButton_sensivityMedium;
+    button->setEnabled(1);
+    button->setText("Средняя");
+    this->setEnabledStyle(button);
+}
+
+void WidgetSensivity::setMediumButtonDisabled()
+{
+    QPushButton* button = ui->pushButton_sensivityMedium;
+    button->setDisabled(1);
+    button->setText("Средняя");
+    this->setDisabledStyle(button);
+}
+
 void WidgetSensivity::setHighButtonEnabled()
 {
     QPushButton* button = ui->pushButton_sensivityHigh;
@@ -174,6 +199,14 @@ void WidgetSensivity::on_pushButton_sensivityLow_clicked()
 }
 
 void WidgetSensivity::on_pushButton_sensivityHigh_clicked()
+{
+    if(client)
+    {
+        client->setBand(0);
+    }
+}
+
+void WidgetSensivity::on_pushButton_sensivityMedium_clicked()
 {
     if(client)
     {

@@ -45,6 +45,7 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->lineEdit_graphVerticalMin->setText(QString::number(this->yGraphMinRange));
     ui->lineEdit_graphHorizontalRange->setText(QString::number(this->tGraphRange));
     ui->lineEdit_BqPerCountLow->setText(QString::number(this->BqPerCountLow)); //  MBq per count!!!
+    ui->lineEdit_BqPerCountMedium->setText(QString::number(this->BqPerCountMedium)); //  MBq per count!!!
     ui->lineEdit_BqPerCountHigh->setText(QString::number(this->BqPerCountHigh)); //  MBq per count!!!
 
     // voltage menu widget
@@ -54,6 +55,8 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->verticalSpacer_activity->changeSize(0,0); // hide widget
     ui->widget_activityMenu->setClient(client);
     // polarity menu widget
+    ui->widget_polarityMenu->hide(); // hide widget
+    ui->verticalSpacer_polarity->changeSize(0,0); // hide widget
     ui->widget_polarityMenu->setClient(client);
     // sensivity menu widget
     ui->widget_sensivityMenu->setClient(client);
@@ -78,9 +81,11 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->widget_currentActivity->setHeadText("Активность (без фона), МБк:");
     ui->widget_currentActivityWithNoise->setHeadText("Активность (с фоном), МБк:");
     ui->widget_noiseLowSense->setHeadText("Фон (низкая чувств.), МБк:");
+    ui->widget_noiseMediumSense->setHeadText("Фон (средняя чувств.), МБк:");
     ui->widget_noiseHighSense->setHeadText("Фон (высокая чувств.), МБк:");
     ui->widget_voltage->setHeadText("Напряжение, В:");
     ui->widget_pressure->setHeadText("Давление, атм:");
+    ui->widget_temperature->setHeadText("Темп., °C:");
 
     // buttons
     buttonsFont.setFamily("Inter");
@@ -102,10 +107,12 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->label_16->setFont(buttonsFont);
     ui->label_19->setFont(buttonsFont);
     ui->label_3->setFont(buttonsFont);
+    ui->label_4->setFont(buttonsFont);
     ui->lineEdit_graphHorizontalRange->setFont(buttonsFont);
     ui->lineEdit_graphVerticalMax->setFont(buttonsFont);
     ui->lineEdit_graphVerticalMin->setFont(buttonsFont);
     ui->lineEdit_BqPerCountLow->setFont(buttonsFont);
+    ui->lineEdit_BqPerCountMedium->setFont(buttonsFont);
     ui->lineEdit_BqPerCountHigh->setFont(buttonsFont);
 
     // bottom label rwell
@@ -193,6 +200,7 @@ void ChamberWindow::update()
         this->currDoseRate = client->getADCValue();
         this->currVoltage = client->getHV();
         this->currPressure = client->getPressure();
+        this->currTemperature = client->getTemperature();
         this->hvPolarity = 0;
         this->sensitivity = client->getBand();
 
@@ -207,8 +215,21 @@ void ChamberWindow::update()
 
         // noise update
         this->noiseUpdate(currDoseRate);
-        this->noiseCount = this->sensitivity ? this->noiseCount_highSense : this->noiseCount_lowSense;
-        this->BqPerCount = this->sensitivity ? this->BqPerCountHigh : this->BqPerCountLow;
+        if(this->sensitivity == 0)  {
+            this->noiseCount = this->noiseCount_highSense;
+            this->BqPerCount = this->BqPerCountHigh;
+        }
+        if(this->sensitivity == 1)  {
+            this->noiseCount = this->noiseCount_mediumSense;
+            this->BqPerCount = this->BqPerCountMedium;
+        }
+        if(this->sensitivity == 2)  {
+            this->noiseCount = this->noiseCount_lowSense;
+            this->BqPerCount = this->BqPerCountLow;
+        }
+
+
+
         // widget values
         this->currentActivity          = (currDoseRate - this->noiseCount) * this->BqPerCount * 1e-6;
         this->currentActivityWithNoise = (currDoseRate) * this->BqPerCount * 1e-6;
@@ -219,11 +240,15 @@ void ChamberWindow::update()
         ui->widget_noiseHighSense->setValueText(
                     QString::number(this->noiseCount_highSense * this->BqPerCountHigh * 1e-6, 'f', 0)
                     );
+        ui->widget_noiseMediumSense->setValueText(
+                    QString::number(this->noiseCount_mediumSense * this->BqPerCountMedium * 1e-6, 'f', 0)
+                    );
         ui->widget_noiseLowSense->setValueText(
                     QString::number(this->noiseCount_lowSense * this->BqPerCountLow * 1e-6, 'f', 0)
                     );
         ui->widget_voltage->setValueText(QString::number(currVoltage));
-        ui->widget_pressure->setValueText(QString::number((currPressure) / 100., 'f', 2) + " / 12.00");
+        ui->widget_pressure->setValueText(QString::number((currPressure) / 10000., 'f', 2) + " / 12.00");
+        ui->widget_temperature->setValueText(QString::number((currTemperature) / 100., 'f', 2));
         ui->widget_polarityMenu->setPolarity(hvPolarity);
         ui->widget_sensivityMenu->setSensivity(sensitivity);
 
@@ -378,11 +403,15 @@ void ChamberWindow::noiseUpdate(int noiseCount)
     if(this->noiseMeasurementStarted)
     {
         this->averageCalulator.add(static_cast<double>(noiseCount));
-        if(this->sensitivity)
+        if(this->sensitivity == 0)
         {
             this->noiseCount_highSense = static_cast<int>(this->averageCalulator.getAverage());
         }
-        else
+        if(this->sensitivity == 1)
+        {
+            this->noiseCount_mediumSense =static_cast<int>(this->averageCalulator.getAverage());
+        }
+        if(this->sensitivity == 2)
         {
             this->noiseCount_lowSense =static_cast<int>(this->averageCalulator.getAverage());
         }
@@ -448,5 +477,14 @@ void ChamberWindow::on_lineEdit_BqPerCountHigh_editingFinished()
     if(val != 0.)
     {
         this->BqPerCountHigh = val;
+    }
+}
+
+void ChamberWindow::on_lineEdit_BqPerCountMedium_editingFinished()
+{
+    double val = ui->lineEdit_BqPerCountMedium->text().toDouble();
+    if(val != 0.)
+    {
+        this->BqPerCountMedium = val;
     }
 }
