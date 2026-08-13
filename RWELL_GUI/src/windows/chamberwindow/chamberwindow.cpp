@@ -3,6 +3,7 @@
 #include <QPalette>
 #include <iostream>
 #include <QtMath>
+#include "settings.h"
 
 // 1) ChamberWindow::ChamberWindow(...) int interval = 10
 // 2) ChamberWindow::update(...) if(...)
@@ -20,20 +21,23 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle("RWELL");
 
-    //init timer
-    int interval = 10; // was 10
+    setupClient();
+    setupSettingsButton();
+    setupConnectWidget();
 
+    BqPerCountLow = Settings::get(Settings::Key::BqPerCountLow, Settings::Section::Main).toString().toDouble();
+    BqPerCountMedium = Settings::get(Settings::Key::BqPerCountMedium, Settings::Section::Main).toString().toDouble();
+    BqPerCountHigh = Settings::get(Settings::Key::BqPerCountMedium, Settings::Section::Main).toString().toDouble();
+
+    //init timer
     timer = new QTimer( this );
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->setSingleShot(false);
-    timer->setInterval(interval);
+    timer->setInterval(50);
 
     //set readonly
     QPalette greyPalette;
     greyPalette.setColor(QPalette::Base, QColor(235, 235, 235));
-
-    // MCU connection
-    this->client = new RWELLClient("127.0.0.1", 22250);
 
     // Init graph
     this->graph = new QGraph(ui->widget_graph);
@@ -123,6 +127,8 @@ ChamberWindow::ChamberWindow(QWidget *parent) :
 
     double k = 0.18;
     ui->label_textRWELL->setPixmap(QIcon(":/img/icon_rwell.png").pixmap(QSize(1178 * k, 163 * k)));
+
+    disableMainWindow();
 }
 
 ChamberWindow::~ChamberWindow()
@@ -130,35 +136,6 @@ ChamberWindow::~ChamberWindow()
     delete ui;
     delete client;
     delete graph;
-}
-
-void ChamberWindow::connect(std::string ip, uint16_t port)
-{
-    if(this->client)
-    {
-        client->setIP(ip);
-        client->setPort(port);
-        client->setVerbose(1);
-        client->start();
-    }
-}
-
-void ChamberWindow::disconnect()
-{
-    if(this->client)
-    {
-        client->stop();
-    }
-}
-
-bool ChamberWindow::isConnected()
-{
-    bool connected = false;
-    if(this->client)
-    {
-        connected = client->isConnected();
-    }
-    return connected;
 }
 
 void ChamberWindow::show()
@@ -169,7 +146,145 @@ void ChamberWindow::show()
     {
         timer->start();
     }
+}
 
+void ChamberWindow::setupClient()
+{
+    std::string ip = Settings::get(Settings::Key::IP, Settings::Section::Main).toString().toStdString();
+    uint16_t port = static_cast<uint16_t>(Settings::get(Settings::Key::Port, Settings::Section::Main).toInt());
+
+    client = new RWELLClient(ip, port);
+    client->setIP(ip);
+    client->setPort(port);
+    client->setVerbose(true);
+    std::function<void()> msgRecvCallback(std::bind(&ChamberWindow::updateWindowData, this));
+    client->setMessageReceivedCallback(msgRecvCallback);
+}
+
+void ChamberWindow::setupSettingsButton()
+{
+    QPushButton* button = ui->pushButton_settings;
+    button->setText("");
+    button->setStyleSheet("* { background-color: rgb(220,220,220) }");
+
+    /* Icon */
+    double iconScaleFactor = 0.70;
+    QSize size = button->size();
+    size.setWidth(static_cast<int>(size.width() * iconScaleFactor));
+    size.setHeight(static_cast<int>(size.height() * iconScaleFactor));
+    button->setIcon(QIcon(":/img/button_icon_settings.png"));
+    button->setIconSize(size);
+}
+
+void ChamberWindow::setupConnectWidget()
+{
+    ui->widget_connect->setTCPClient(this->client);
+    std::function<void()> enableCallback(std::bind(&ChamberWindow::enableMainWindow, this));
+    ui->widget_connect->setConnectionEstablishedCallback(enableCallback);
+    std::function<void()> disableCallback(std::bind(&ChamberWindow::disableMainWindow, this));
+    ui->widget_connect->setConnectionLostCallback(disableCallback);
+}
+
+void ChamberWindow::enableMainWindow()
+{
+    uint8_t en = 1;
+    ui->pushButton_noiseReset->setEnabled(en);
+    ui->pushButton_startGraph->setEnabled(en);
+    ui->pushButton_resetScales->setEnabled(en);
+    ui->pushButton_noiseMeasure->setEnabled(en);
+    ui->widget_graph->setEnabled(en);
+    ui->widget_voltage->setEnabled(en);
+    ui->widget_fileMenu->setEnabled(en);
+    ui->widget_pressure->setEnabled(en);
+    ui->widget_temperature->setEnabled(en);
+    ui->widget_voltageMenu->setEnabled(en);
+    ui->widget_activityMenu->setEnabled(en);
+    ui->widget_polarityMenu->setEnabled(en);
+    ui->widget_noiseLowSense->setEnabled(en);
+    ui->widget_sensivityMenu->setEnabled(en);
+    ui->widget_noiseHighSense->setEnabled(en);
+    ui->widget_currentActivity->setEnabled(en);
+    ui->widget_noiseMediumSense->setEnabled(en);
+    ui->widget_currentActivityWithNoise->setEnabled(en);
+    ui->widget_graph->setEnabled(en);
+    ui->checkBox_noise->setEnabled(en);
+
+    timer->start();
+}
+
+void ChamberWindow::disableMainWindow()
+{
+    uint8_t en = 0;
+    ui->pushButton_noiseReset->setEnabled(en);
+    ui->pushButton_startGraph->setEnabled(en);
+    ui->pushButton_resetScales->setEnabled(en);
+    ui->pushButton_noiseMeasure->setEnabled(en);
+    ui->widget_graph->setEnabled(en);
+    ui->widget_voltage->setEnabled(en);
+    ui->widget_fileMenu->setEnabled(en);
+    ui->widget_pressure->setEnabled(en);
+    ui->widget_temperature->setEnabled(en);
+    ui->widget_voltageMenu->setEnabled(en);
+    ui->widget_activityMenu->setEnabled(en);
+    ui->widget_polarityMenu->setEnabled(en);
+    ui->widget_noiseLowSense->setEnabled(en);
+    ui->widget_sensivityMenu->setEnabled(en);
+    ui->widget_noiseHighSense->setEnabled(en);
+    ui->widget_currentActivity->setEnabled(en);
+    ui->widget_noiseMediumSense->setEnabled(en);
+    ui->widget_currentActivityWithNoise->setEnabled(en);
+    ui->checkBox_noise->setEnabled(en);
+
+    timer->stop();
+}
+
+void ChamberWindow::updateWindowData()
+{
+    if(client)
+    {
+        this->id = client->getMessageNum();
+
+        this->currDoseRate = client->getADCValue();
+        this->currentActivity          = (currDoseRate - this->noiseCount) * this->BqPerCount * 1e-6;
+        this->currentActivityWithNoise = (currDoseRate) * this->BqPerCount * 1e-6;
+        this->currVoltage = client->getHV();
+        this->currPressure = client->getPressure();
+        this->currTemperature = client->getTemperature();
+        this->sensitivity = client->getBand();
+
+        // noise update
+        this->noiseUpdate(currDoseRate);
+        if(this->sensitivity == 0)  {
+            this->noiseCount = this->noiseCount_highSense;
+            this->BqPerCount = this->BqPerCountHigh;
+        }
+        if(this->sensitivity == 1)  {
+            this->noiseCount = this->noiseCount_mediumSense;
+            this->BqPerCount = this->BqPerCountMedium;
+        }
+        if(this->sensitivity == 2)  {
+            this->noiseCount = this->noiseCount_lowSense;
+            this->BqPerCount = this->BqPerCountLow;
+        }
+
+        ui->widget_currentActivity->setValueText(QString::number(currentActivity, 'f', 0));
+        ui->widget_currentActivityWithNoise->setValueText(QString::number(currentActivityWithNoise, 'f', 0));
+        ui->widget_noiseHighSense->setValueText(
+                    QString::number(this->noiseCount_highSense * this->BqPerCountHigh * 1e-6, 'f', 0)
+                    );
+        ui->widget_noiseMediumSense->setValueText(
+                    QString::number(this->noiseCount_mediumSense * this->BqPerCountMedium * 1e-6, 'f', 0)
+                    );
+        ui->widget_noiseLowSense->setValueText(
+                    QString::number(this->noiseCount_lowSense * this->BqPerCountLow * 1e-6, 'f', 0)
+                    );
+        ui->widget_voltage->setValueText(QString::number(currVoltage));
+        ui->widget_pressure->setValueText(QString::number((currPressure) / 10000., 'f', 2) + " / 12.00");
+        ui->widget_temperature->setValueText(QString::number((currTemperature) / 100., 'f', 2));
+        ui->widget_sensivityMenu->setSensivity(sensitivity);
+
+        logFileUpdate();
+    }
 }
 
 void ChamberWindow::closeEvent(QCloseEvent *event)
@@ -188,72 +303,9 @@ void ChamberWindow::resizeEvent(QResizeEvent *event)
 
 void ChamberWindow::update()
 {
-    // update message from MCU
-    if(this->id < client->getMessageNum()) // real
-    //if(1) // emulator
+    if(client && client->isConnected())
     {
-        id = client->getMessageNum();
-        //id++;
-
-           // real
-        this->cyclesRemained = 0;
-        this->currDoseRate = client->getADCValue();
-        this->currVoltage = client->getHV();
-        this->currPressure = client->getPressure();
-        this->currTemperature = client->getTemperature();
-        this->hvPolarity = 0;
-        this->sensitivity = client->getBand();
-
-            // emulator
-        /*this->cyclesRemained = 33;
-        //this->currDoseRate = 1000000 * (1 + qSin(static_cast<double>(id)/20.));
-        this->currDoseRate = 7900000 + (rand() % 200000);
-        this->currVoltage = ui->widget_voltageMenu->getInputVoltage(); // debug !!!! 50
-        this->currPressure = 1190;
-        this->hvPolarity = 0;
-        this->sensitivity = 1; */
-
-        // noise update
-        this->noiseUpdate(currDoseRate);
-        if(this->sensitivity == 0)  {
-            this->noiseCount = this->noiseCount_highSense;
-            this->BqPerCount = this->BqPerCountHigh;
-        }
-        if(this->sensitivity == 1)  {
-            this->noiseCount = this->noiseCount_mediumSense;
-            this->BqPerCount = this->BqPerCountMedium;
-        }
-        if(this->sensitivity == 2)  {
-            this->noiseCount = this->noiseCount_lowSense;
-            this->BqPerCount = this->BqPerCountLow;
-        }
-
-
-
-        // widget values
-        this->currentActivity          = (currDoseRate - this->noiseCount) * this->BqPerCount * 1e-6;
-        this->currentActivityWithNoise = (currDoseRate) * this->BqPerCount * 1e-6;
-
-        ui->widget_activityMenu->setMeasuresCompleted(cyclesRemained);
-        ui->widget_currentActivity->setValueText(QString::number(currentActivity, 'f', 0));
-        ui->widget_currentActivityWithNoise->setValueText(QString::number(currentActivityWithNoise, 'f', 0));
-        ui->widget_noiseHighSense->setValueText(
-                    QString::number(this->noiseCount_highSense * this->BqPerCountHigh * 1e-6, 'f', 0)
-                    );
-        ui->widget_noiseMediumSense->setValueText(
-                    QString::number(this->noiseCount_mediumSense * this->BqPerCountMedium * 1e-6, 'f', 0)
-                    );
-        ui->widget_noiseLowSense->setValueText(
-                    QString::number(this->noiseCount_lowSense * this->BqPerCountLow * 1e-6, 'f', 0)
-                    );
-        ui->widget_voltage->setValueText(QString::number(currVoltage));
-        ui->widget_pressure->setValueText(QString::number((currPressure) / 10000., 'f', 2) + " / 12.00");
-        ui->widget_temperature->setValueText(QString::number((currTemperature) / 100., 'f', 2));
-        ui->widget_polarityMenu->setPolarity(hvPolarity);
-        ui->widget_sensivityMenu->setSensivity(sensitivity);
-
-        // graph update
-        if(this->graph)
+        if(this->graph && this->graphStarted)
         {
             // calc activity
             this->graph->QGraph::update(
@@ -261,13 +313,7 @@ void ChamberWindow::update()
                         (currDoseRate - this->noiseCount * ( ui->checkBox_noise->checkState() == Qt::CheckState::Checked )) * this->BqPerCount * 1e-6
                         );
         }
-        // file update
-        logFileUpdate();
     }
-
-    // update switch voltage button state
-    const int switchVoltageLimit = static_cast<int>(this->maxVoltage * 0.05);
-    ui->widget_polarityMenu->enableWidget( qAbs(client->getHV()) <  (switchVoltageLimit) );
 }
 
 void ChamberWindow::on_pushButton_startGraph_clicked()
@@ -428,7 +474,6 @@ void ChamberWindow::logFileUpdate()
     session->setRawActivityMBq(this->currentActivityWithNoise);
     session->setNoiselessActivityMBq(this->currentActivity);
     session->setSensitivity(this->sensitivity);
-    session->setVoltagePolarity(this->hvPolarity);
     session->setVoltage(this->currVoltage);
     session->setPressure(this->currPressure / 100.);
     ui->widget_fileMenu->update(this->id);
@@ -467,6 +512,8 @@ void ChamberWindow::on_lineEdit_BqPerCountLow_editingFinished()
     double val = ui->lineEdit_BqPerCountLow->text().toDouble();
     if(val != 0.)
     {
+        Settings::set(Settings::Key::BqPerCountLow, Settings::Section::Main) =
+                ui->lineEdit_BqPerCountLow->text();
         this->BqPerCountLow = val;
     }
 }
@@ -476,6 +523,8 @@ void ChamberWindow::on_lineEdit_BqPerCountHigh_editingFinished()
     double val = ui->lineEdit_BqPerCountHigh->text().toDouble();
     if(val != 0.)
     {
+        Settings::set(Settings::Key::BqPerCountHigh, Settings::Section::Main) =
+                ui->lineEdit_BqPerCountHigh->text();
         this->BqPerCountHigh = val;
     }
 }
@@ -485,6 +534,13 @@ void ChamberWindow::on_lineEdit_BqPerCountMedium_editingFinished()
     double val = ui->lineEdit_BqPerCountMedium->text().toDouble();
     if(val != 0.)
     {
+        Settings::set(Settings::Key::BqPerCountMedium, Settings::Section::Main) =
+                ui->lineEdit_BqPerCountMedium->text();
         this->BqPerCountMedium = val;
     }
+}
+
+void ChamberWindow::on_pushButton_settings_clicked()
+{
+    settingsWindow->show();
 }

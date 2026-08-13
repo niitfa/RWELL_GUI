@@ -5,6 +5,7 @@
 #include "string_validator.h"
 #include <string>
 #include <iostream>
+#include "settings.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -89,7 +90,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // fill combo box
     ui->comboBox_TypeSelect->addItem("Колодезная камера");
 
-
     // default connection values
     ui->lineEdit_ip->setText(default_ip);
     ui->lineEdit_port->setText(QString::number(default_port));
@@ -100,10 +100,9 @@ MainWindow::~MainWindow()
     delete ui;
     delete chamber_ui;
 }
-
 void MainWindow::on_pushButton_Connect_clicked()
 {
-    std::string ip = ui->lineEdit_ip->text().toStdString();
+    /*std::string ip = ui->lineEdit_ip->text().toStdString();
     uint16_t port = static_cast<uint16_t>(ui->lineEdit_port->text().toInt());
     QString type = ui->comboBox_TypeSelect->currentText();
 
@@ -128,7 +127,7 @@ void MainWindow::on_pushButton_Connect_clicked()
                  QMessageBox::critical(this, " ", "Ошибка подключения!", QMessageBox::Close);
              }
          }
-    }
+    } */
 
     // emulator!!!!
     //chamber_ui->show();

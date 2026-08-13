@@ -10,7 +10,7 @@ QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = RT7Chamber
+TARGET = RWELL_GUI
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -28,7 +28,9 @@ CONFIG += c++11
 SOURCES += $$files("*.cpp", true)
 HEADERS += $$files("*.h", true)
 FORMS += $$files("*.ui", true)
-RESOURCES += icons.qrc
+RESOURCES += \
+        icons.qrc \
+        settings.qrc
 INCLUDEPATH += \
         src \
         src/util \
@@ -37,7 +39,8 @@ INCLUDEPATH += \
         src/windows/mainwindow \
         src/windows/chamberwindow \
         src/graph \
-        src/client
+        src/client \
+        src/settings
 
 
 # Default rules for deployment.

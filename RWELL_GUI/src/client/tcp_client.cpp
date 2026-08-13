@@ -162,11 +162,12 @@ void TCPClient::loop()
                 std::cout << "TCP client: " << getCurrentTimeStr()
                     << " connection established " << this->ip << ":" << this->port << std::endl;
 			}
-		}
+		}          
 		else
 		{
 			if (verbose) 
 			{ 
+                perror("conn");
                 std::cout << "TCP client: " << getCurrentTimeStr() << " connection error. Retry...\n";
 			}
 			this->socketState = TCPSocketState::Closing;
@@ -218,7 +219,7 @@ int TCPClient::openSocket()
         std::cout << "TCP client: " << getCurrentTimeStr()
             << " opening socket " << this->ip << ":" << this->port << std::endl;
 	}
-    return socket( AF_INET, SOCK_STREAM, 0 );
+    return sockfd = socket( AF_INET, SOCK_STREAM, 0 );
 }
 
 void TCPClient::closeSocket()

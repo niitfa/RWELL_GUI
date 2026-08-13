@@ -9,6 +9,8 @@
 #include "qgraph.h"
 #include "scansessionfile.h"
 #include "averagecalculator.h"
+#include "settingswindow.h"
+#include "settings.h"
 
 #include "rwell_client.h"
 
@@ -23,11 +25,18 @@ class ChamberWindow : public QDialog
 public:
     explicit ChamberWindow(QWidget *parent = nullptr);
     ~ChamberWindow() override;
-
-    void connect(std::string ip, uint16_t port);
-    void disconnect();
-    bool isConnected();
     void show();
+
+private:
+    void setupClient();
+    void setupSettingsButton();
+    void setupConnectWidget();
+
+    // connect widget callbacks
+    void enableMainWindow();
+    void disableMainWindow();
+    // message received callback
+    void updateWindowData();
 
 private slots:
     void update();
@@ -52,6 +61,8 @@ private slots:
 
     void on_lineEdit_BqPerCountMedium_editingFinished();
 
+    void on_pushButton_settings_clicked();
+
 private:
     void setStartStyle(QPushButton*, QString);
     void setStopStyle(QPushButton*, QString);
@@ -68,6 +79,7 @@ private:
 
     RWELLClient* client = nullptr;
     Ui::ChamberWindow *ui;
+    SettingsWindow* settingsWindow = new SettingsWindow();
     QTimer* timer = nullptr;
 
     int id = 0;
@@ -80,9 +92,9 @@ private:
     const int maxVoltage = 500;
 
     // MBq per count
-    double BqPerCountLow = 13000;
-    double BqPerCountMedium = 1300;
-    double BqPerCountHigh = 130;
+    double BqPerCountLow = 1;
+    double BqPerCountMedium = 1;
+    double BqPerCountHigh = 1;
     double BqPerCount = BqPerCountLow;
 
     // write to file
@@ -100,8 +112,6 @@ private:
 
     // received data
     int8_t sensitivity = 0;
-    int8_t hvPolarity = 0;
-    int cyclesRemained = 0;
     int currDoseRate = 0;
     int currVoltage = 0; // debug !!!! 50
     int currPressure = 0;
