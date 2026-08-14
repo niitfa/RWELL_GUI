@@ -167,7 +167,6 @@ void TCPClient::loop()
 		{
 			if (verbose) 
 			{ 
-                perror("conn");
                 std::cout << "TCP client: " << getCurrentTimeStr() << " connection error. Retry...\n";
 			}
 			this->socketState = TCPSocketState::Closing;
