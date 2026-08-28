@@ -698,8 +698,8 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
-             <height>90</height>
+             <width>90</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="alignment">
