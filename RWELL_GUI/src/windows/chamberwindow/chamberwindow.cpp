@@ -254,15 +254,15 @@ void ChamberWindow::updateWindowData()
 
         // noise update
         this->noiseUpdate(currDoseRate);
-        if(this->sensitivity == 0)  {
+        if(this->sensitivity == static_cast<uint8_t>(RWELLSensitivity::High))  {
             this->noiseCount = this->noiseCount_highSense;
             this->BqPerCount = this->BqPerCountHigh;
         }
-        if(this->sensitivity == 1)  {
+        if(this->sensitivity == static_cast<uint8_t>(RWELLSensitivity::Medium))  {
             this->noiseCount = this->noiseCount_mediumSense;
             this->BqPerCount = this->BqPerCountMedium;
         }
-        if(this->sensitivity == 2)  {
+        if(this->sensitivity == static_cast<uint8_t>(RWELLSensitivity::Low))  {
             this->noiseCount = this->noiseCount_lowSense;
             this->BqPerCount = this->BqPerCountLow;
         }
@@ -449,17 +449,17 @@ void ChamberWindow::noiseUpdate(int noiseCount)
     if(this->noiseMeasurementStarted)
     {
         this->averageCalulator.add(static_cast<double>(noiseCount));
-        if(this->sensitivity == 0)
+        if(this->sensitivity == static_cast<uint8_t>(RWELLSensitivity::High))
         {
             this->noiseCount_highSense = static_cast<int>(this->averageCalulator.getAverage());
         }
-        if(this->sensitivity == 1)
+        if(this->sensitivity == static_cast<uint8_t>(RWELLSensitivity::Medium))
         {
-            this->noiseCount_mediumSense =static_cast<int>(this->averageCalulator.getAverage());
+            this->noiseCount_mediumSense = static_cast<int>(this->averageCalulator.getAverage());
         }
-        if(this->sensitivity == 2)
+        if(this->sensitivity == static_cast<uint8_t>(RWELLSensitivity::Low))
         {
-            this->noiseCount_lowSense =static_cast<int>(this->averageCalulator.getAverage());
+            this->noiseCount_lowSense = static_cast<int>(this->averageCalulator.getAverage());
         }
     }
 }

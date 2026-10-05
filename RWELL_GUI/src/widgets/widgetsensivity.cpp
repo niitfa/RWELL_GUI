@@ -84,19 +84,19 @@ void WidgetSensivity::setSensivity(uint8_t sensivity)
 {
     if((sensivity != this->lastSensivity))
     {
-        if(sensivity == 0) // high
+        if(sensivity == static_cast<uint8_t>(RWELLSensitivity::High))
         {
             this->setHighButtonDisabled();
             this->setMediumButtonEnabled();
             this->setLowButtonEnabled();
         }
-        else if(sensivity == 1) // medium
+        else if(sensivity == static_cast<uint8_t>(RWELLSensitivity::Medium))
         {
             this->setHighButtonEnabled();
             this->setMediumButtonDisabled();
             this->setLowButtonEnabled();
         }
-        else if(sensivity == 2) // low
+        else if(sensivity == static_cast<uint8_t>(RWELLSensitivity::Low))
         {
             this->setHighButtonEnabled();
             this->setMediumButtonEnabled();
@@ -194,7 +194,7 @@ void WidgetSensivity::on_pushButton_sensivityLow_clicked()
 {
     if(client)
     {
-        client->setBand(2);
+        client->setSensitivity(static_cast<uint8_t>(RWELLSensitivity::Low));
     }
 }
 
@@ -202,7 +202,7 @@ void WidgetSensivity::on_pushButton_sensivityHigh_clicked()
 {
     if(client)
     {
-        client->setBand(0);
+        client->setSensitivity(static_cast<uint8_t>(RWELLSensitivity::High));
     }
 }
 
@@ -210,6 +210,6 @@ void WidgetSensivity::on_pushButton_sensivityMedium_clicked()
 {
     if(client)
     {
-        client->setBand(1);
+        client->setSensitivity(static_cast<uint8_t>(RWELLSensitivity::Medium));
     }
 }

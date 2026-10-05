@@ -84,9 +84,9 @@ void RWELLClient::setHV(uint16_t volt)
 {
     setCommand(RWELLCommandCode::Set_HV, volt, 0);
 }
-void RWELLClient::setBand(uint8_t band)
+void RWELLClient::setSensitivity(uint8_t sensitivity)
 {
-    setCommand(RWELLCommandCode::Set_Band, band, 0);
+    setCommand(RWELLCommandCode::Set_Band, sensitivity, 0);
 }
 void RWELLClient::setCommand(int code, int param_1, int param_2)
 {

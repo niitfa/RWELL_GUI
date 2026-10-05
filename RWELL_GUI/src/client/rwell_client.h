@@ -4,6 +4,13 @@
 #include "tcp_client.h"
 #include <vector>
 
+enum class RWELLSensitivity
+{
+    Low = 2,
+    Medium = 1,
+    High = 0
+};
+
 // command list and sequence as it is in MCU program
 enum RWELLCommandCode
 {
@@ -48,7 +55,7 @@ public:
     int getTemperature();
     int8_t getBand();
     void setHV(uint16_t volt);
-    void setBand(uint8_t band);
+    void setSensitivity(uint8_t sensitivity);
 private:
     void setCommand(int code, int param_1, int param_2);
 };
