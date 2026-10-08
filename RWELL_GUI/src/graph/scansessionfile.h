@@ -25,6 +25,7 @@ class ScanSessionFile
     uint16_t    voltage                 = 0;
     uint8_t     voltagePolarity         = 0;
     double      pressureAt              = 0;
+    double      temperature             = 0;
 
     QString filename = "rwell";
 public:
@@ -50,6 +51,7 @@ public:
     void setVoltage(uint16_t voltage);
     void setVoltagePolarity(uint8_t polarity);
     void setPressure(double pressureAt);
+    void setTemperature(double temperature);
 
 private:
     QString getFolderPath();

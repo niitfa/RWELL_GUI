@@ -4,6 +4,7 @@
 #include <QtMath>
 #include <QTextStream>
 #include <iostream>
+#include "rwell_client.h"
 
 ScanSessionFile::ScanSessionFile()
 {
@@ -108,6 +109,11 @@ void ScanSessionFile::setPressure(double pressureAt)
     this->pressureAt = pressureAt;
 }
 
+void ScanSessionFile::setTemperature(double temperature)
+{
+    this->temperature = temperature;
+}
+
 // private
 QString ScanSessionFile::getFolderPath()
 {
@@ -172,9 +178,9 @@ void ScanSessionFile::printHeadText(QFile* f)
     stream << "Polarity," <<  (voltagePolarity ? "-" : "+") << endl;
 
     QString senseStr;
-    if(sensitivity == 0) senseStr = "high";
-    if(sensitivity == 1) senseStr = "medium";
-    if(sensitivity == 2) senseStr = "low";
+    if(sensitivity == static_cast<uint8_t>(RWELLSensitivity::High)) senseStr = "high";
+    if(sensitivity == static_cast<uint8_t>(RWELLSensitivity::Medium)) senseStr = "medium";
+    if(sensitivity == static_cast<uint8_t>(RWELLSensitivity::Low)) senseStr = "low";
     stream << "Sensitivity," << senseStr << endl;
     stream << endl;
 
@@ -193,6 +199,7 @@ void ScanSessionFile::printValuesDescription(QFile *f)
             "Activity no BG (MBq)," <<
             "Voltage (V)," <<
             "Pressure (at)," <<
+            "Temperature (celc)," <<
             "Polarity," <<
             "Sensitivity" << endl;
 }
@@ -202,9 +209,9 @@ void ScanSessionFile::printReqularData(QFile *f)
     QTextStream stream(f);
 
     QString senseStr;
-    if(sensitivity == 0) senseStr = "high";
-    if(sensitivity == 1) senseStr = "medium";
-    if(sensitivity == 2) senseStr = "low";
+    if(sensitivity == static_cast<uint8_t>(RWELLSensitivity::High)) senseStr = "high";
+    if(sensitivity == static_cast<uint8_t>(RWELLSensitivity::Medium)) senseStr = "medium";
+    if(sensitivity == static_cast<uint8_t>(RWELLSensitivity::Low)) senseStr = "low";
     // заполнение строки
     stream <<
               getTimeStringFile() << "," <<
@@ -215,7 +222,8 @@ void ScanSessionFile::printReqularData(QFile *f)
               QString::number(rawActivityMBq, 'f', 2) << "," <<
               QString::number(noiselessActivityMBq, 'f', 2) << "," <<
               QString::number(voltage) << "," <<
-              QString::number(pressureAt, 'f', 2) << "," <<
+              QString::number(pressureAt, 'f', 3) << "," <<
+              QString::number(temperature, 'f', 2) << "," <<
               (voltagePolarity ? "-" : "+") << "," <<
               senseStr << endl;
 }

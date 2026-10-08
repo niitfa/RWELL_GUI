@@ -279,7 +279,7 @@ void ChamberWindow::updateWindowData()
                     QString::number(this->noiseCount_lowSense * this->BqPerCountLow * 1e-6, 'f', 0)
                     );
         ui->widget_voltage->setValueText(QString::number(currVoltage));
-        ui->widget_pressure->setValueText(QString::number((currPressure) / 10000., 'f', 2) + " / 12.00");
+        ui->widget_pressure->setValueText(QString::number((currPressure) / 10000., 'f', 2) + " / 13.00");
         ui->widget_temperature->setValueText(QString::number((currTemperature) / 100., 'f', 2));
         ui->widget_sensivityMenu->setSensivity(sensitivity);
 
@@ -475,7 +475,8 @@ void ChamberWindow::logFileUpdate()
     session->setNoiselessActivityMBq(this->currentActivity);
     session->setSensitivity(this->sensitivity);
     session->setVoltage(this->currVoltage);
-    session->setPressure(this->currPressure / 100.);
+    session->setPressure(this->currPressure / 10000.);
+    session->setTemperature(this->currTemperature / 100.);
     ui->widget_fileMenu->update(this->id);
 }
 
